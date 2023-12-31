@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eazymass | Data Collection</title>
+    <!-- <link rel="stylesheet" href="style.css"> -->
+    <link rel="icon" href="EM-FINAL-LOGO.png">
+    <style>
+        *{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, Helvetica, sans-serif;
+    }
+    body{
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .main-page{
+        padding: 30px 0px ;
+        background-color: rgba(233, 229, 229, 0.352);
+        box-shadow: 1px 19px 38px rgba(0,0,0,0.30), 0 15px 12px rgba(0,0,0,0.22);
+        border-radius: 15px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin: 20px 15px;
+
+    }
+    .main-page p{
+        font-size: 35px;
+        font-weight: 100;
+        margin: 30px 50px 20px 50px;
+    }
+    .main-page span{
+        font-size: 18px;
+        margin: 0px 0px 20px 0px;
+    }
+
+    form{
+        width: 250px;
+    }
+
+    
+    .date{
+        width: 100%;
+        background-color: rgba(200, 200, 200, 0.862);
+        border-radius: 5px;
+        height: 30px;
+        margin: 10px 0px;
+    }
+
+    .date input{
+        width: 100%;
+        height: 100%;
+        background-color: transparent;
+        border: none;
+        outline: none;
+        padding: 0px 10px ;
+    }
+    .input-weight{
+        width: 100%;
+        background-color: rgba(200, 200, 200, 0.862);
+        border-radius: 5px;
+        height: 30px;
+    }
+
+    .input-weight input{
+        width: 100%;
+        height: 100%;
+        background-color: transparent;
+        border: none;
+        outline: none;
+        padding: 0px 10px ;
+    }
+
+    .main-page button{
+        margin: 10px 0px ;
+        width: 100%;
+        height: 30px;
+        border-radius: 5px;
+        border: 1px solid;
+        background-color: rgb(197, 197, 197);
+        cursor: pointer;
+        
+    }
+    .main-page button:hover{
+        background-color: rgb(170, 169, 169);
+        transition: all ease-in-out 0.12s;
+    }
+    hr{
+        /* border: 1px solid ; */
+        width: 100% ;
+        margin: 5px 0px;
+    }
+    #Submitted{
+        font-size: 16px;
+        margin: 5px 0px 0px 0px;
+    }
+    button a{
+        text-decoration: none;
+        color: black;
+    }
+    </style>
+</head>
+<body>
+   
+    <div class="main-page">
+    <img src="EM-FINAL-LOGO.png" alt="logo" width="80px">
+
+        <p id="userName"> Hello, Name </p>
+        <span>Add Data</span>
+
+        <form>
+            <div class="date">
+                <input type="date" name="date" id="inputdate">
+            </div>
+            <div class="input-weight">
+                <input type="number"placeholder="Enter measured weight" value="" id="inputNumber">
+            </div>
+            <button id="submit">Submit</button>
+        </form>
+            
+
+    </div>
+   
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getDatabase, ref, get, push } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+const firebaseConfig = {
+            apiKey: "AIzaSyD_sTxNPXNoTEjJgN6wMRPXfu-5fj5Jsvg",
+            authDomain: "authentication-eazymass.firebaseapp.com",
+            projectId: "authentication-eazymass",
+            storageBucket: "authentication-eazymass.appspot.com",
+            messagingSenderId: "155014123182",
+            appId: "1:155014123182:web:e55c7d273b776f9aa9a73f"
+        };
+
+const app = initializeApp(firebaseConfig);
+const database = getDatabase(app);
+const auth = getAuth(app);
+
+document.addEventListener('DOMContentLoaded', function () {
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            const uid = user.uid;
+            const userRef = ref(database, 'users/' + uid);
+            
+            get(userRef).then((snapshot) => {
+                if (snapshot.exists()) {
+                    const userData = snapshot.val();
+
+                    console.log('User Data:', userData);
+
+                    if ('username' in userData) {
+                        const userNameElement = document.getElementById('userName');
+                        userNameElement.textContent = 'Hello, ' + username.displayName;
+
+                        const submitButton = document.getElementById('submit');
+                        submitButton.addEventListener('click', function () {
+                            const inputNumber = document.getElementById('inputNumber').value;
+                            const inputdate = document.getElementById('inputdate').value;
+
+                            if (!inputNumber || !inputdate) {
+                                alert('Please fill in all fields.');
+                                return;
+                            }
+
+                            const submissionsRef = ref(database, 'users/' + uid + '/submissions');
+                            push(submissionsRef, {
+                                weigh_date: inputdate,
+                                weight: inputNumber
+                            }).then(() => {
+                                console.log('Data stored!');
+
+                                setTimeout(() => {
+                                    window.alert('Data Stored!');
+                                }, 100);
+                            }).catch((error) => {
+                                console.error('Error storing data:', error.message);
+                            });
+                        });
+                    } else {
+                        console.log('User data does not contain a "username" field.');
+                    }
+                } else {
+                    console.log('User data not found.');
+                }
+            }).catch((error) => {
+                console.error('Error fetching user data:', error.message);
+            });
+        } else {
+            console.log('No user is signed in.');
+        }
+    });
+});
+
+    </script>
+    
+
+
+
+
+</body>
+</html>
