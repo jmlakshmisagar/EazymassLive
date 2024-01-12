@@ -1,0 +1,232 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eazymass | Login</title>
+    <link rel="icon" href="EM-FINAL-LOGO.png">
+    <script src="https://www.gstatic.com/firebasejs/9.3.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.3.0/firebase-auth.js"></script>
+    <script src="firebase-config.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<style>
+    *{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, Helvetica, sans-serif;
+}
+body{
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+}
+.login-page{
+    padding: 10px 30px;
+    background-color: rgba(233, 229, 229, 0.352);
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    border-radius: 15px;
+    box-shadow: 1px 19px 38px rgba(0,0,0,0.30), 0 15px 12px rgba(0,0,0,0.22);
+    margin: 20px 15px;
+
+}
+.logo-for-login-page {
+    margin-top: 15px;
+    border-radius: 15px;
+    background-color: rgb(255, 255, 255);
+    padding: 0px;
+}
+p a{
+    text-decoration: none;
+    color: rgb(99, 99, 206);
+}
+p{
+    margin: 10px;
+}
+p a:hover{
+    text-decoration: underline;
+    transition: all 0.2s;
+}
+.input-boxes{
+    padding: 0px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.input-boxes input{
+    width: 253px;
+    margin: 5px 0px;
+    border: none;
+    outline: none;
+    background-color: rgb(225, 225, 225);
+    height: 30px;
+    border-radius: 5px;
+    padding: 10px;
+}
+.input-boxes input::placeholder{
+    color: rgb(47, 47, 47);
+}
+.submit-for-login-page button{
+    width: 250px;
+    border-radius: 5px;
+    border: 1px solid;
+    background-color: rgb(197, 197, 197);
+    height: 30px;
+    cursor: pointer;
+    margin: 10px;
+}
+.submit-for-login-page button:hover{
+    background-color: rgb(170, 169, 169);
+    transition: all ease-in-out 0.12s;
+}
+span{
+    font-size: 12px;
+}
+.google{
+    width: 250px;
+    height: 30px;
+    text-align: center;
+    background-color: rgb(197, 197, 197);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 5px;
+    border: 1px solid;
+    margin: 5px 0px 20px 0px;
+    cursor: pointer;
+    font-size: 14px;
+}
+.google:hover + h6{
+    background-color: rgb(170, 169, 169);
+    transition: all ease-in-out 0.12s;
+    display: block;
+}
+strong{
+    margin: 5px 0px 0px 0px;
+    font-weight: 500;
+    font-size: 24px;
+}
+small{
+    font-size: 14px;
+    margin: 10px 0px 20px 0px;
+}
+small a{
+    text-decoration: none;
+    color: rgb(99, 99, 206);
+    font-size: 15px;
+}
+h6{
+    display: none;
+    background-color: transparent;
+    transition: 2s;
+}
+small a:hover{
+    text-decoration: underline;
+    transition: all 0.2s;
+   
+}
+.google a{
+    text-decoration: none;
+    margin: 0px 5px;
+    color: black;
+}
+button{
+    margin:  0px 0px 5px 0px;
+    width: 250px;
+    border-radius: 5px;
+    border: 1px solid;
+    background-color: rgb(197, 197, 197);
+    height: 30px;
+    cursor: pointer;
+}
+</style>
+</style>
+<body>
+    <div class="login-page">
+        <div class="logo-for-login-page">
+            <img src="EM-FINAL-LOGO.png" alt="Easymass_logo" width="100px">
+        </div>
+        <strong>Eazymass</strong>
+        <p><a href="#">Login</a></p>
+        <div class="input-boxes">
+            <div class="email-adress-or-User-ID">
+                <input type="email" placeholder="Enter Email or UserID" id="inputEmailOrUserID" required name="Email">
+            </div>
+            <div class="password-email-or-userId">
+                <input type="password" placeholder="Enter password" id="passwordEntry" name="password">
+            </div>
+            <div class="submit-for-login-page">
+                <button id="Login" value="Login">Login</button>
+            </div>
+        </div>
+        <button id="track">Track Data</button>
+        <small>Just need to  <a href="getData.html" target="_blank">respond</a> ?</small>
+    </div>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, set, ref, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    
+        const firebaseConfig = {
+            apiKey: "AIzaSyBOzm7Cn9HRbRwYZbIaU3lFZKICT8juw2o",
+            authDomain: "authentication-app-eazymass.firebaseapp.com",
+            databaseURL: "https://authentication-app-eazymass-default-rtdb.firebaseio.com",
+            projectId: "authentication-app-eazymass",
+            storageBucket: "authentication-app-eazymass.appspot.com",
+            messagingSenderId: "35732165848",
+            appId: "1:35732165848:web:ff2dd1f37b26b0d98af3ad"
+        };
+    
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+        const auth = getAuth();
+    
+        document.getElementById('Login').addEventListener('click', (e) => {
+            var email = document.getElementById('inputEmailOrUserID').value;
+            var password = document.getElementById('passwordEntry').value;
+    
+            signInWithEmailAndPassword(auth, email, password)
+                .then((userCredential) => {
+                    const user = userCredential.user;
+                    const date = new Date();
+                    update(ref(database, 'users/' + user.uid), {
+                        last_login: date,
+                    });
+    
+                    const uid = user.uid;
+    
+                    window.location.href = 'inputPage.html?uid=' + uid;
+                })
+                .catch((error) => {
+                    const errorCode = error.code;
+                    const errorMessage = error.message;
+                    alert(errorMessage);
+                });
+        });
+    
+        const trackButton = document.getElementById('track');
+        trackButton.addEventListener('click', function () {
+            const user = auth.currentUser;
+    
+            if (user) {
+                const date = new Date();
+                update(ref(database, 'users/' + user.uid), {
+                    last_login: date,
+                });
+    
+                window.location.href = 'trackMain.html?uid=' + user.uid;
+            } else {
+                alert("User not signed in.");
+            }
+        });
+    </script>
+    <script src="second.js"></script>
+</body>
+</html>
