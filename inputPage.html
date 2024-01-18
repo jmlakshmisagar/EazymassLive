@@ -115,7 +115,7 @@
 
         <form>
             <div class="date">
-                <input type="date" name="date" id="inputdate">
+                <input type="date" name="date" id="inputdate" max="">
             </div>
             <div class="input-weight">
                 <input type="number"placeholder="Enter measured weight" value="" id="inputNumber">
@@ -128,6 +128,8 @@
     </div>
    
     <script type="module">
+        document.getElementById('inputdate').max = new Date().toISOString().split('T')[0];
+        
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, get, push } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
     
