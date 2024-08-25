@@ -9,13 +9,11 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
     <style>
-        .bg-trans {
-            background-color: transparent;
-        }
         body {
             position: relative;
-            overflow: hidden; /* Ensure that the ball does not cause scrollbars */
+            overflow: hidden;
         }
+
         .ball {
             position: absolute;
             top: -80%;
@@ -23,14 +21,16 @@
             width: 100%;
             height: 200%;
             border-radius: 0 0 50% 50%;
-            z-index: -1;
+            z-index: -1; /* Ensure it's behind other content */
             animation: slideDown 2s ease-out forwards;
         }
+
         .container {
             padding-top: 6%;
             position: relative;
-            z-index: 1;
+            z-index: 1; /* Ensure content is above the ball */
         }
+
         .btn-holder {
             display: flex;
             flex-wrap: wrap;
@@ -38,6 +38,7 @@
             max-width: 1000px;
             margin: 10px auto 35px;
         }
+
         .btn {
             position: relative;
             display: inline-block;
@@ -49,6 +50,7 @@
             margin: 0px 25px 15px;
             min-width: 150px;
         }
+
         .btn span {
             position: relative;
             display: inline-block;
@@ -61,6 +63,7 @@
             transition: 0.3s;
             z-index: 1;
         }
+
         .btn::before {
             content: '';
             position: absolute;
@@ -74,12 +77,15 @@
             transform-origin: bottom;
             transition: transform 0.3s ease-in-out;
         }
+
         .btn:hover::before {
             transform: scaleY(1);
         }
+
         .btn:hover span {
             color: #111111;
         }
+
         @media only screen and (max-width: 600px) {
             .ball {
                 position: absolute;
@@ -89,23 +95,26 @@
                 height: 175%;
                 border-radius: 0 0 250px 250px;
             }
+
             @keyframes slideDown {
                 from {
                     top: -150%;
                 }
                 to {
-                    top: -120%; 
+                    top: -120%;
                 }
             }
         }
+
         @keyframes slideDown {
             from {
                 top: -200%;
             }
             to {
-                top: -80%; 
+                top: -80%;
             }
         }
+
         .centered-content {
             display: flex;
             flex-direction: column;
@@ -113,10 +122,12 @@
             justify-content: center;
             text-align: center;
         }
+
         .centered-content h1 {
             font-size: 2.5rem;
             font-weight: 700;
         }
+
         .centered-content p {
             font-size: 1.1rem;
             line-height: 1.5;
@@ -129,14 +140,11 @@
         <div class="container bg-trans">
             <div class="row p-5">
                 <div class="col-md-6 col-sm-12">
-                    <img src="EM-FINAL-LOGO.png" alt="logo" class="img-fluid" style="filter: invert(1);">
+                    <img src="EM-FINAL-LOGO.png" alt="logo" class="img-fluid" style="filter: invert(1); scale: 0.9;">
                 </div>
                 <div class="col-md-6 col-sm-12 text-light centered-content">
                     <div class="pt-5 pb-3">
                         <h1>Welcome to Eazymass <br> Your Effortless Weight Tracker!</h1><br>
-                        <p style="text-align: justify;">
-                            EazyMass is your go-to solution for effortless weight tracking. Designed with simplicity in mind, this application streamlines the process of recording your daily weight and provides valuable insights into your weight management journey.
-                        </p>
                     </div>
                     <hr>
                     <div class="btn-holder">
@@ -152,3 +160,4 @@
     </main>
 </body>
 </html>
+ 
