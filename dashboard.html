@@ -285,7 +285,11 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }, 1000);
 });
-
+document.addEventListener('DOMContentLoaded', function () {
+            const dateInput = document.getElementById('date-input');
+            const today = new Date().toISOString().split('T')[0];
+            dateInput.setAttribute('max', today);
+        });
 
 </script>
 
