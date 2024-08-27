@@ -18,7 +18,6 @@ const database = getDatabase(app);
 const auth = getAuth(app);
 const storage = getStorage(app);
 
-// Generate a random hexadecimal token of given length
 function generateToken(length) {
   const charset = '0123456789abcdef';
   let token = '';
@@ -29,12 +28,29 @@ function generateToken(length) {
   return token;
 }
 
+async function handleLogin() {
+  const storedUid = localStorage.getItem('uid');
+  if (storedUid) {
+    try {
+      const userSnapshot = await get(ref(database, 'users/' + storedUid));
+      if (userSnapshot.exists()) {
+        const token = generateToken(250);
+        window.location.href = `dashboard.html?token=${token}&uid=${storedUid}`;
+      } else {
+        localStorage.removeItem('uid'); // Remove invalid UID
+      }
+    } catch (error) {
+      console.error('Error fetching user data:', error.message);
+    }
+  }
+}
+
 document.getElementById('submittt').addEventListener('click', async (e) => {
   e.preventDefault();
   const email = document.getElementById('inputEmailOrUserID').value;
   const password = document.getElementById('passwordEntry').value;
   const username = document.getElementById('username').value;
-  const profilePic = document.getElementById('profilePic').files[0]; // Assuming profile picture input
+  const profilePic = document.getElementById('profilePic').files[0];
 
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
@@ -45,31 +61,25 @@ document.getElementById('submittt').addEventListener('click', async (e) => {
       profilePicURL = await uploadProfilePic(profilePic);
     }
 
-    // Set user details
     await set(ref(database, 'users/' + user.uid), {
       username: username,
       email: email,
       profile_pic: profilePicURL
     });
 
-    // Create a default submission with current date and default weight of 50
     const defaultSubmissionRef = ref(database, `users/${user.uid}/submissions`);
     const newSubmission = {
-      weigh_date: new Date().toISOString().split('T')[0], // Current date in YYYY-MM-DD format
-      weight: 50 // Default weight value
+      weigh_date: new Date().toISOString().split('T')[0],
+      weight: 50
     };
 
-    // Push new submission
     await push(defaultSubmissionRef, newSubmission);
 
-    // Generate token
+    localStorage.setItem('uid', user.uid); // Store UID in localStorage
     const token = generateToken(250);
-
-    // Redirect with token
     window.location.href = `dashboard.html?token=${token}&uid=${user.uid}`;
 
   } catch (error) {
-    console.error('Error creating user or adding default submission:', error.message);
     alert('Error: ' + error.message);
   }
 });
@@ -87,26 +97,14 @@ document.getElementById('login-btn').addEventListener('click', async (e) => {
       last_login: date
     });
 
-    // Retrieve user data to check if it exists
-    const userSnapshot = await get(ref(database, 'users/' + user.uid));
-    if (userSnapshot.exists()) {
-      console.log('User Data:', userSnapshot.val());
-    } else {
-      console.log('User data not found for UID:', user.uid);
-    }
-
-    // Generate token
+    localStorage.setItem('uid', user.uid); // Store UID in localStorage
     const token = generateToken(250);
-
-    // Redirect with token
     window.location.href = `dashboard.html?token=${token}&uid=${user.uid}`;
   } catch (error) {
-    console.error('Error logging in:', error.message);
     alert('Error: ' + error.message);
   }
 });
 
-// Function to handle Google Sign-In for multiple buttons
 const handleGoogleSignIn = async () => {
   const provider = new GoogleAuthProvider();
 
@@ -114,53 +112,46 @@ const handleGoogleSignIn = async () => {
     const result = await signInWithPopup(auth, provider);
     const user = result.user;
 
-    // Check if user already exists
     const userRef = ref(database, 'users/' + user.uid);
     const userSnapshot = await get(userRef);
 
     if (!userSnapshot.exists()) {
-      // New user, set default data
       await set(userRef, {
         username: user.displayName,
         email: user.email,
         profile_pic: user.photoURL || ''
       });
 
-      // Create a default submission with current date and default weight of 50
       const defaultSubmissionRef = ref(database, `users/${user.uid}/submissions`);
       const newSubmission = {
-        weigh_date: new Date().toISOString().split('T')[0], // Current date in YYYY-MM-DD format
-        weight: 50 // Default weight value
+        weigh_date: new Date().toISOString().split('T')[0],
+        weight: 50
       };
 
-      // Push new submission
       await push(defaultSubmissionRef, newSubmission);
     } else {
-      // Existing user, update profile picture if not already set
       const userData = userSnapshot.val();
       if (user.photoURL && (!userData.profile_pic || userData.profile_pic !== user.photoURL)) {
         await update(userRef, { profile_pic: user.photoURL });
       }
     }
 
-    // Generate token
+    localStorage.setItem('uid', user.uid); // Store UID in localStorage
     const token = generateToken(250);
-
-    // Redirect with token
     window.location.href = `dashboard.html?token=${token}&uid=${user.uid}`;
   } catch (error) {
-    console.error('Error with Google Sign-In:', error.message);
     alert('Error: ' + error.message);
   }
 };
 
-// Add event listeners to Google Sign-In buttons
 document.getElementById('googleid1').addEventListener('click', handleGoogleSignIn);
 document.getElementById('googleid2').addEventListener('click', handleGoogleSignIn);
 
-// Function to upload profile picture to Firebase Storage
 async function uploadProfilePic(file) {
   const storageReference = storageRef(storage, 'profilePics/' + file.name);
   await uploadBytes(storageReference, file);
   return await getDownloadURL(storageReference);
 }
+
+// Check localStorage for UID on page load
+document.addEventListener('DOMContentLoaded', handleLogin);
