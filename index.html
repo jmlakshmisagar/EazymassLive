@@ -34,34 +34,40 @@
       crossorigin="anonymous"
     ></script>
     <style>
-      body {
-        position: relative;
-        overflow: hidden;
-      }
+body {
+  position: relative;
+  overflow: hidden;
+}
 
-      .ball {
-        position: absolute;
-        top: -80%;
-        background-image: linear-gradient(-45deg, #202020 0%, #171717 100%);
-        width: 100%;
-        height: 200%;
-        border-radius: 0 0 50% 50%;
-        z-index: -1; /* Ensure it's behind other content */
-        animation: slideDown 2s ease-out forwards;
-      }
+.ball {
+  position: absolute;
+  top: -80%; /* Initial position */
+  background-image: linear-gradient(-45deg, #202020 0%, #171717 100%);
+  width: 100%;
+  height: 120%;
+  border-radius: 0 0 50% 50%;
+  z-index: -1; /* Ensure it's behind other content */
+  transition: top 2s ease-out; /* Smooth transition for movement */
+}
 
-      .container {
-        padding-top: 6%;
-        position: relative;
-        z-index: 1; /* Ensure content is above the ball */
-      }
+.ball.animate {
+  top: 0%; /* End position after animation */
+}
+
+.container {
+  padding-top: 6%;
+  position: relative;
+  z-index: 1; /* Ensure content is above the ball */
+}
+
+
 
       .btn-holder {
         display: flex;
         flex-wrap: wrap;
         justify-content: center;
         max-width: 1000px;
-        margin: 10px auto 35px;
+        margin: 25px auto 35px;
       }
 
       .btn {
@@ -172,12 +178,14 @@
               style="filter: invert(1); scale: 0.9;"
             />
           </div>
-          <div class="col-md-6 col-sm-12 text-light centered-content">
+          <div class="col-md-6 col-sm-12 text-white centered-content">
             <div class="pt-5 pb-3">
-              <h2 style="line-height: 35px;">
-                Welcome to Eazymass <br /><br />
-                Your Effortless Weight Tracker!
-              </h2>
+              <h1>
+                Eazymass
+                <h2>
+                  Your Effortless Weight Tracker!
+                </h2>
+              </h1>
               <br />
             </div>
             <hr />
@@ -191,35 +199,64 @@
           </div>
         </div>
       </div>
+
+      <p style="
+      position: fixed;
+      bottom: 1%;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-size: 1.25rem;
+      color: #111111db;
+      margin: 0;
+      padding: 10px;
+      background-color: #ffffff;
+    ">
+      Eazy by <a href="https://www.linkedin.com/in/lakshmisagar-jm/" style="color: #111111; text-decoration: none;">Lakshmisagar J M</a>
+    </p>
+    
     </main>
 
     <script>
-      function generateToken(length) {
-        const charset = "0123456789abcdef";
-        let token = "";
-        for (let i = 0; i < length; i++) {
-          const randomIndex = Math.floor(Math.random() * charset.length);
-          token += charset[randomIndex];
-        }
-        return token;
+    
+    function generateToken(length) {
+      const charset = "0123456789abcdef";
+      let token = "";
+      for (let i = 0; i < length; i++) {
+        const randomIndex = Math.floor(Math.random() * charset.length);
+        token += charset[randomIndex];
       }
-
-      document.addEventListener("DOMContentLoaded", () => {
-        const joinButton = document.querySelector(".btn-join");
-
-        joinButton.addEventListener("click", (e) => {
-          e.preventDefault();
-
+      return token;
+    }
+    
+    document.addEventListener("DOMContentLoaded", () => {
+      const ball = document.querySelector(".ball");
+      const joinButton = document.querySelector(".btn-join");
+    
+      // Move the ball down when the page loads
+      ball.style.top = '0%';
+    
+      joinButton.addEventListener("click", (e) => {
+        e.preventDefault();
+    
+        // Move the ball up
+        ball.style.top = '-120%';
+    
+        // Wait for animation to complete before redirecting
+        setTimeout(() => {
           const storedUid = localStorage.getItem("uid");
-
+    
           if (storedUid) {
             const token = generateToken(250);
             window.location.href = `dashboard.html?token=${token}&uid=${storedUid}`;
           } else {
             window.location.href = "loginsignup.html";
           }
-        });
+        }, 2000); // Adjust delay to match transition duration
       });
+    });
+    
+
     </script>
   </body>
 </html>

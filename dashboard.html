@@ -181,6 +181,10 @@
         cursor: pointer;
       }
 
+      #weight-input::placeholder {
+        color: white;
+      }
+
       /* Input styling */
       #firstEntryModal input[type="date"],
       #firstEntryModal input[type="text"] {
@@ -234,48 +238,47 @@
     <main>
       <!-- Sticky Header -->
 
-
       <div
         class="modal fade"
         id="alertModal"
         tabindex="-1"
         aria-labelledby="alertModalLabel"
         aria-hidden="true"
-    >
+      >
         <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="alertModalLabel">Refer Your Friends</h5>
-                    <button
-                        type="button"
-                        class="btn-close"
-                        data-bs-dismiss="modal"
-                        aria-label="Close"
-                    ></button>
-                </div>
-                <div class="modal-body">
-                    <p id="alertModalMessage">We’d love for you to share our website with your friends! Click the button below to refer us on WhatsApp.</p>
-                </div>
-                <div class="modal-footer">
-                    <button
-                        type="button"
-                        class="btn btn-primary"
-                        id="shareButton"
-                    >
-                        Share on WhatsApp
-                    </button>
-                    <button
-                        type="button"
-                        class="btn btn-secondary"
-                        data-bs-dismiss="modal"
-                    >
-                        Close
-                    </button>
-                </div>
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="alertModalLabel">
+                Refer to your friends
+              </h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
             </div>
+            <div class="modal-body">
+              <p id="alertModalMessage">
+                We’d love for you to share our website with your friends! Click
+                the button below to refer us on WhatsApp.
+              </p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-primary" id="shareButton">
+                Share on WhatsApp
+              </button>
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Close
+              </button>
+            </div>
+          </div>
         </div>
-    </div>
-
+      </div>
 
       <!-- Bootstrap Modal for Error Messages -->
       <div
@@ -352,7 +355,7 @@
         style="background-color: #2e2e2e; border-bottom: 1px solid #a1a1a1;"
       >
         <div
-          class="container py-3 px-5 d-flex align-items-center justify-content-between"
+          class="container py-3 px-4 d-flex align-items-center justify-content-between"
         >
           <!-- Header content goes here -->
           <div class="top text-center d-flex align-items-center">
@@ -459,7 +462,7 @@
                   class="mb-3"
                   style="border-radius: 50%;"
                 />
-                <h4 id="username-tag">Eazzy</h4>
+                <h4 id="username-tag">Eazy</h4>
                 <h5 style="color: #b9b9b9;">
                   Joined : <span id="joineddate">Now</span>
                 </h5>
@@ -506,7 +509,7 @@
                 >
                   <h5 style="color: #b9b9b9;">Trend</h5>
                   <br />
-                  <h1 style="color: rgb(255, 217, 0);" id="trend">Eazzy</h1>
+                  <h1 style="color: rgb(255, 217, 0);" id="trend">Eazy</h1>
                 </div>
               </div>
             </div>
@@ -528,19 +531,52 @@
           <!-- Additional Details Column -->
           <div class="col-xl-3 col-md-6 col-sm-12 d-flex align-items-stretch">
             <div
-              class="addition-detail boxborder text-center my-3 w-100 d-flex flex-column justify-content-center p-4"
+              class="addition-detail boxborder text-center my-3 w-100 d-flex flex-column justify-content-center p-3"
             >
-              <h3 class="" style="color: #b9b9b9;">Streaks</h3>
-              <h1 style="color: rgb(255, 217, 0);">
-                <span style="font-size: 2.5rem;" id="streaks"> </span> days
-              </h1>
+              <h3 class="" style="color: #b9b9b9;">
+                Streaks :
+                <small style="color: rgb(255, 217, 0);">
+                  <strong style="font-size: 2.5rem;" id="streaks"> </strong>
+                  days
+                </small>
+              </h3>
+
+              <hr />
+
+              <h6 style="color: #b9b9b9;">Choose chart range</h6>
+              <form action="">
+                <label for="custom-date" style="color: #ffffff;"
+                  >Select Days:</label
+                >
+                <select
+                  id="custom-date"
+                  name="custom-date"
+                  style="
+                    background-color: #333333;
+                    color: #ffffff;
+                    border: 1px solid #444444;
+                    padding: 4px 12px;
+                    border-radius: 4px;
+                    margin: 4px 0 ;
+                  "
+                >
+                  <option value="monday">Monday</option>
+                  <option value="tuesday">Tuesday</option>
+                  <option value="wednesday">Wednesday</option>
+                  <option value="thursday">Thursday</option>
+                  <option value="friday">Friday</option>
+                  <option value="saturday">Saturday</option>
+                  <option value="sunday">Sunday</option>
+                </select>
+              </form>
+
               <hr />
               <!-- Form -->
-              <div class="input-form mt-2">
-                <h3 style="color: #b9b9b9;">Add weight data</h3>
-                <form action="" class="mt-4" id="secondform">
+              <div class="input-form mt-1">
+                <h6 style="color: #b9b9b9;">Add weight data</h6>
+                <form action="" class="mt-1" id="secondform">
                   <div class="form-group mb-3">
-                    <label for="date-input">Date</label>
+                    <!-- <label for="date-input"></label> -->
                     <input
                       type="date"
                       class="form-control"
@@ -549,7 +585,7 @@
                     />
                   </div>
                   <div class="form-group mb-3">
-                    <label for="weight-input">Weight (kg)</label>
+                    <!-- <label for="weight-input"></label> -->
                     <input
                       type="text"
                       class="form-control"
@@ -568,9 +604,14 @@
                     </button>
                   </div>
                 </form>
-                <hr>
-                <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#alertModal">
-                    Refer your friends
+                <hr />
+                <button
+                  type="button"
+                  class="btn btn-warning"
+                  data-bs-toggle="modal"
+                  data-bs-target="#alertModal"
+                >
+                  Refer your friends
                 </button>
               </div>
             </div>
@@ -599,6 +640,9 @@
         document
           .getElementById("confirmLogout")
           .addEventListener("click", function () {
+            // Remove uid from localStorage
+            localStorage.removeItem("uid");
+
             // Redirect to the logout page or handle logout logic here
             window.location.href = "index.html"; // Example redirect to login page
           });
@@ -648,19 +692,18 @@
         dateInput.setAttribute("max", todayString);
       });
 
+      document.addEventListener("DOMContentLoaded", function () {
+        const shareButton = document.getElementById("shareButton");
+        const websiteUrl = "https://jmlakshmisagar.github.io/EazymassLive/";
+        const message = `Check out this amazing website: ${websiteUrl}`;
 
-
-      document.addEventListener('DOMContentLoaded', function () {
-            const shareButton = document.getElementById('shareButton');
-            const websiteUrl = encodeURIComponent('jmlakshmisagar.github.io/EazymassLive/');
-            const message = encodeURIComponent('Check out this amazing website: ' + websiteUrl);
-
-            shareButton.addEventListener('click', function () {
-                const whatsappUrl = `https://wa.me/?text=${message}`;
-                window.open(whatsappUrl, '_blank');
-            });
+        shareButton.addEventListener("click", function () {
+          const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(
+            message
+          )}`;
+          window.open(whatsappUrl, "_blank");
         });
-      
+      });
     </script>
   </body>
 </html>
