@@ -5,7 +5,7 @@ import { ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gsta
 
 
 function generateToken(length) {
-  const charset = '0123456789abcdef';
+  const charset = '0123456789eazy';
   let token = '';
   for (let i = 0; i < length; i++) {
     const randomIndex = Math.floor(Math.random() * charset.length);
@@ -23,7 +23,7 @@ async function handleLogin() {
         const token = generateToken(120);
         window.location.href = `dashboard.html?token=${token}&uid=${storedUid}&token=${token}`;
       } else {
-        localStorage.removeItem('uid'); // Remove invalid UID
+        localStorage.removeItem('uid'); 
       }
     } catch (error) {
       console.error('Error fetching user data:', error.message);
@@ -53,17 +53,9 @@ document.getElementById('submittt').addEventListener('click', async (e) => {
       profile_pic: profilePicURL
     });
 
-    const defaultSubmissionRef = ref(database, `users/${user.uid}/submissions`);
-    const newSubmission = {
-      weigh_date: new Date().toISOString().split('T')[0],
-      weight: 50
-    };
-
-    await push(defaultSubmissionRef, newSubmission);
-
-    localStorage.setItem('uid', user.uid); // Store UID in localStorage
-    const token = generateToken(250);
-    window.location.href = `dashboard.html?token=${token}&uid=${user.uid}`;
+    localStorage.setItem('uid', user.uid); 
+    const token = generateToken(120);
+    window.location.href = `dashboard.html?token=${token}&uid=${user.uid}&token=${token}`;
 
   } catch (error) {
     alert('Error: ' + error.message);
@@ -83,9 +75,9 @@ document.getElementById('login-btn').addEventListener('click', async (e) => {
       last_login: date
     });
 
-    localStorage.setItem('uid', user.uid); // Store UID in localStorage
-    const token = generateToken(250);
-    window.location.href = `dashboard.html?token=${token}&uid=${user.uid}`;
+    localStorage.setItem('uid', user.uid); 
+    const token = generateToken(120);
+    window.location.href = `dashboard.html?token=${token}&uid=${user.uid}&token=${token}`;
   } catch (error) {
     alert('Error: ' + error.message);
   }
@@ -107,14 +99,6 @@ const handleGoogleSignIn = async () => {
         email: user.email,
         profile_pic: user.photoURL || ''
       });
-
-      const defaultSubmissionRef = ref(database, `users/${user.uid}/submissions`);
-      const newSubmission = {
-        weigh_date: new Date().toISOString().split('T')[0],
-        weight: 50
-      };
-
-      await push(defaultSubmissionRef, newSubmission);
     } else {
       const userData = userSnapshot.val();
       if (user.photoURL && (!userData.profile_pic || userData.profile_pic !== user.photoURL)) {
@@ -122,9 +106,9 @@ const handleGoogleSignIn = async () => {
       }
     }
 
-    localStorage.setItem('uid', user.uid); // Store UID in localStorage
-    const token = generateToken(250);
-    window.location.href = `dashboard.html?token=${token}&uid=${user.uid}`;
+    localStorage.setItem('uid', user.uid);
+    const token = generateToken(120);
+    window.location.href = `dashboard.html?token=${token}&uid=${user.uid}&token=${token}`;
   } catch (error) {
     alert('Error: ' + error.message);
   }
@@ -139,7 +123,6 @@ async function uploadProfilePic(file) {
   return await getDownloadURL(storageReference);
 }
 
-// Check localStorage for UID on page load
 document.addEventListener('DOMContentLoaded', handleLogin);
 
 const sign_in_btn = document.querySelector("#sign-in-btn");

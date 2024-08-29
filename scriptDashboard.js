@@ -175,6 +175,8 @@ function showModal(message) {
   jQuery("#errorModal").modal("show");
 }
 
+
+
 document
   .getElementById("firstEntryForm")
   .addEventListener("submit", async function (event) {
@@ -187,32 +189,22 @@ document
       try {
         const submissionsRef = ref(database, `users/${uid}/submissions`);
         const snapshot = await get(submissionsRef);
-        let weight50Key = null;
 
-        snapshot.forEach((childSnapshot) => {
-          const data = childSnapshot.val();
-          if (data.weight == 50) {
-            weight50Key = childSnapshot.key;
-          }
-        });
+        if (!snapshot.exists()) {
+          const newSubmissionRef = ref(database, `users/${uid}/submissions`);
+          await push(newSubmissionRef, {
+            weigh_date: dateInput,
+            weight: weightInput,
+          });
 
-        if (weight50Key) {
-          showModal("An entry with weight 50 already exists. It will be removed. Please enter a new weight.");
+          showModal("Submission saved successfully.");
+          document.getElementById("firstEntryModal").style.display = "none";
+          document.querySelector("form").reset();
 
-          await remove(ref(database, `users/${uid}/submissions/${weight50Key}`));
+          location.reload();
+        } else {
+          showModal("You already have a submission. No further submissions are allowed.");
         }
-
-        const newSubmissionRef = ref(database, `users/${uid}/submissions`);
-        await push(newSubmissionRef, {
-          weigh_date: dateInput,
-          weight: weightInput,
-        });
-
-        showModal("Submission saved successfully.");
-        document.getElementById("firstEntryModal").style.display = "none";
-        document.querySelector("form").reset();
-
-        location.reload();
 
       } catch (error) {
         showModal("Error saving data: " + error.message);
