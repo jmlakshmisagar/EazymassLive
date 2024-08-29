@@ -181,21 +181,39 @@ document
     event.preventDefault();
 
     const dateInput = document.getElementById("first-date-input").value;
-    const weightInput = document.getElementById("first-weight-input").value;
+    let weightInput = document.getElementById("first-weight-input").value;
 
     if (dateInput && weightInput) {
       try {
+        const submissionsRef = ref(database, `users/${uid}/submissions`);
+        const snapshot = await get(submissionsRef);
+        let weight50Key = null;
+
+        snapshot.forEach((childSnapshot) => {
+          const data = childSnapshot.val();
+          if (data.weight == 50) {
+            weight50Key = childSnapshot.key;
+          }
+        });
+
+        if (weight50Key) {
+          showModal("An entry with weight 50 already exists. It will be removed. Please enter a new weight.");
+
+          await remove(ref(database, `users/${uid}/submissions/${weight50Key}`));
+        }
+
         const newSubmissionRef = ref(database, `users/${uid}/submissions`);
         await push(newSubmissionRef, {
           weigh_date: dateInput,
           weight: weightInput,
         });
 
-        showModal("First submission saved successfully.");
+        showModal("Submission saved successfully.");
         document.getElementById("firstEntryModal").style.display = "none";
         document.querySelector("form").reset();
 
         location.reload();
+
       } catch (error) {
         showModal("Error saving data: " + error.message);
       }
@@ -203,6 +221,7 @@ document
       showModal("Please fill in all fields.");
     }
   });
+
 
 document
   .getElementById("secondform")
