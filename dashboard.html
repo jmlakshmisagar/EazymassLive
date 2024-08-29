@@ -507,6 +507,40 @@
           window.open(whatsappUrl, "_blank");
         });
       });
+
+      function requestFullScreen() {
+        const element = document.documentElement;
+        if (element.requestFullscreen) {
+          element.requestFullscreen();
+        } else if (element.mozRequestFullScreen) {
+          element.mozRequestFullScreen();
+        } else if (element.webkitRequestFullscreen) {
+          element.webkitRequestFullscreen();
+        } else if (element.msRequestFullscreen) {
+          element.msRequestFullscreen();
+        }
+      }
+
+      function attemptFullscreenOnInteraction() {
+        if (window.innerWidth <= 767) {
+          requestFullScreen();
+          document.removeEventListener("click", attemptFullscreenOnInteraction);
+          document.removeEventListener(
+            "touchstart",
+            attemptFullscreenOnInteraction
+          );
+        }
+      }
+
+      document.addEventListener("onload", attemptFullscreenOnInteraction);
+      document.addEventListener("touch", attemptFullscreenOnInteraction);
+      document.addEventListener("touchstart", attemptFullscreenOnInteraction);
+
+      document.addEventListener("DOMContentLoaded", function () {
+        if (window.innerWidth <= 767) {
+          requestFullScreen();
+        }
+      });
     </script>
   </body>
 </html>
