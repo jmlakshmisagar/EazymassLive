@@ -9,10 +9,9 @@ document.addEventListener("DOMContentLoaded", async function () {
     const userRef = ref(database, `users/${uid}`);
     const userSnapshot = await get(userRef);
 
-    const retrivetoken = localStorage.getItem('accesstoken');
+    const retrivetoken = localStorage.getItem("accesstoken");
 
-
-    if (userSnapshot.exists() && retrivetoken==accesstoken ) {
+    if (userSnapshot.exists() && retrivetoken == accesstoken) {
       const userData = userSnapshot.val();
       const username = userData.username;
 
@@ -165,7 +164,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         document.getElementById("firstEntryModal").style.display = "block";
       }
     } else {
-      showModal("Access denied" );
+      showModal("Access denied");
     }
   } catch (error) {
     showModal("Error fetching data: " + error.message);
@@ -178,8 +177,6 @@ function showModal(message) {
 
   jQuery("#errorModal").modal("show");
 }
-
-
 
 document
   .getElementById("firstEntryForm")
@@ -207,9 +204,10 @@ document
 
           location.reload();
         } else {
-          showModal("You already have a submission. No further submissions are allowed.");
+          showModal(
+            "You already have a submission. No further submissions are allowed."
+          );
         }
-
       } catch (error) {
         showModal("Error saving data: " + error.message);
       }
@@ -217,7 +215,6 @@ document
       showModal("Please fill in all fields.");
     }
   });
-
 
 document
   .getElementById("secondform")
@@ -232,8 +229,6 @@ document
         const submissionsRef = ref(database, `users/${uid}/submissions`);
         const snapshot = await get(submissionsRef);
         let dateExists = false;
-
-
 
         if (snapshot.exists()) {
           const submissions = snapshot.val();
