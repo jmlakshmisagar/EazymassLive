@@ -93,13 +93,29 @@ body {
 #firstEntryModal .modal-content {
     background-color: #2e2e2e;
     color: #fff;
-    margin: 15% auto;
+    margin: 20vh auto;
     padding: 20px;
     border: 1px solid #888;
-    width: 50%;
+    width: 30vw;
     border-radius: 10px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
     position: relative;
+}
+
+@media only screen and (max-width: 600px) {
+
+    #firstEntryModal .modal-content {
+        background-color: #2e2e2e;
+        color: #fff;
+        margin: 20vh auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+        position: relative;
+    }
+    
 }
 
 #firstEntryModal .close-button {
