@@ -123,6 +123,10 @@ body {
   #trend {
     font-size: 2rem;
   }
+  #titletrend{
+    margin-top: -10px;
+  }
+
 }
 
 #firstEntryModal .close-button {
