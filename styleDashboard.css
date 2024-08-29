@@ -1,0 +1,171 @@
+body {
+    color: rgba(255, 255, 255, 0.915);
+    background-color: rgb(23, 23, 23);
+}
+
+.boxborder {
+    background-color: #2e2e2e;
+    border-radius: 18px;
+    border: 1px solid #a1a1a1;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 10px 20px rgba(0, 0, 0, 0.2);
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 0s linear 0.5s, opacity 1.5s ease-in-out;
+}
+
+.boxborder.visible {
+    visibility: visible;
+    opacity: 1;
+    transition-delay: 0s, 0.49s;
+}
+
+.addition-detail input {
+    border-radius: 10px;
+    background-color: #4f4f4f;
+    color: white;
+    border: 1px solid transparent;
+}
+
+.addition-detail input:focus {
+    border: 1px solid white;
+    background-color: #858585;
+    outline: none;
+}
+
+@media (max-width: 576px) {
+    .weight-data {
+        margin-top: 15px;
+    }
+}
+
+.ball {
+    position: absolute;
+    top: -80%;
+    background-image: linear-gradient(-45deg, #202020 0%, #171717 100%);
+    width: 100%;
+    height: 200%;
+    border-radius: 0 0 50% 50%;
+    z-index: -1;
+    animation: slideDown 2s ease-out forwards;
+}
+
+@media only screen and (max-width: 600px) {
+    .ball {
+        position: absolute;
+        top: -55%;
+        background-image: linear-gradient(-45deg, #202020 0%, #171717 100%);
+        width: 100%;
+        height: 15%;
+        border-radius: 0 0 250px 250px;
+    }
+
+    @keyframes slideDown {
+        from {
+            top: -150%;
+        }
+        to {
+            top: -100%;
+        }
+    }
+}
+
+@keyframes slideDown {
+    from {
+        top: -200%;
+    }
+    to {
+        top: -100%;
+    }
+}
+
+#firstEntryModal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+#firstEntryModal .modal-content {
+    background-color: #2e2e2e;
+    color: #fff;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 50%;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+    position: relative;
+}
+
+#firstEntryModal .close-button {
+    color: #aaaaaa;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    position: absolute;
+    top: 10px;
+    right: 20px;
+}
+
+#firstEntryModal .close-button:hover,
+#firstEntryModal .close-button:focus {
+    color: #ffffff;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+#weight-input::placeholder {
+    color: white;
+}
+
+#firstEntryModal input[type="date"],
+#firstEntryModal input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0;
+    display: inline-block;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    background-color: #4f4f4f;
+    color: #fff;
+}
+
+#firstEntryModal button[type="submit"] {
+    width: 100%;
+    background-color: rgb(255, 217, 0);
+    color: white;
+    padding: 14px 20px;
+    margin: 8px 0;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#firstEntryModal button[type="submit"]:hover {
+    background-color: #ffcc00;
+}
+
+.modal-content {
+    background-color: #2e2e2e;
+    color: white;
+}
+
+.modal-header .btn-close {
+    filter: invert(0.8);
+}
+
+.modal-footer .btn-secondary {
+    background-color: #a1a1a1;
+    border-color: #a1a1a1;
+}
+
+.modal-footer .btn-primary {
+    background-color: rgb(255, 217, 0);
+    border-color: rgb(255, 217, 0);
+}

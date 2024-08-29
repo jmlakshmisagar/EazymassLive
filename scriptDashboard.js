@@ -1,28 +1,8 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import {
-  getDatabase,
-  ref,
-  get,
-  push,
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-import "https://cdn.jsdelivr.net/npm/chart.js/dist/Chart.min.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyBOzm7Cn9HRbRwYZbIaU3lFZKICT8juw2o",
-  authDomain: "authentication-app-eazymass.firebaseapp.com",
-  databaseURL:
-    "https://authentication-app-eazymass-default-rtdb.firebaseio.com",
-  projectId: "authentication-app-eazymass",
-  storageBucket: "authentication-app-eazymass.appspot.com",
-  messagingSenderId: "35732165848",
-  appId: "1:35732165848:web:ff2dd1f37b26b0d98af3ad",
-};
-
-const app = initializeApp(firebaseConfig);
-const database = getDatabase(app);
+import { database, ref, get, push } from "./firebaseChartSetup.js";
 
 const urlParams = new URLSearchParams(window.location.search);
 const uid = urlParams.get("uid");
+
 document.addEventListener("DOMContentLoaded", async function () {
   try {
     const userRef = ref(database, `users/${uid}`);
@@ -53,7 +33,6 @@ document.addEventListener("DOMContentLoaded", async function () {
           (a, b) => new Date(a.weigh_date) - new Date(b.weigh_date)
         );
 
-        // Function to generate chart data
         const generateChartData = (filteredSubmissions) => {
           return {
             labels: filteredSubmissions.map((submission) => {
@@ -76,7 +55,6 @@ document.addEventListener("DOMContentLoaded", async function () {
           };
         };
 
-        // Initial chart rendering
         const renderChart = (data) => {
           const chartCanvas = document.getElementById("weightChart");
           new Chart(chartCanvas, {
@@ -97,19 +75,18 @@ document.addEventListener("DOMContentLoaded", async function () {
           });
         };
 
-        // Render initial chart with all data
         renderChart(generateChartData(submissionsArray));
 
-        // Handle dropdown change
-        document.getElementById("custom-date").addEventListener("change", function () {
-          const selectedValue = parseInt(this.value, 10);
-          if (isNaN(selectedValue)) return;
+        document
+          .getElementById("custom-date")
+          .addEventListener("change", function () {
+            const selectedValue = parseInt(this.value, 10);
+            if (isNaN(selectedValue)) return;
 
-          const filteredSubmissions = submissionsArray.slice(-selectedValue);
-          renderChart(generateChartData(filteredSubmissions));
-        });
+            const filteredSubmissions = submissionsArray.slice(-selectedValue);
+            renderChart(generateChartData(filteredSubmissions));
+          });
 
-        // Calculate and display average weight
         if (submissionsArray.length > 0) {
           const latestSubmission = submissionsArray[0];
           const latestWeight = latestSubmission.weight;
@@ -139,7 +116,12 @@ document.addEventListener("DOMContentLoaded", async function () {
             "fluctuation"
           ).textContent = formattedDifference;
 
-          const trend = difference < 0 ? "Decrease" : difference > 0 ? "Increase" : "Constant";
+          const trend =
+            difference < 0
+              ? "Decrease"
+              : difference > 0
+              ? "Increase"
+              : "Constant";
           document.getElementById("trend").textContent = trend;
 
           document.getElementById(
@@ -154,19 +136,18 @@ document.addEventListener("DOMContentLoaded", async function () {
           const submissionCount = submissionsArray.length;
           document.getElementById("streaks").textContent = submissionCount;
 
-          // Populate the date range dropdown
           const selectElement = document.getElementById("custom-date");
-          selectElement.innerHTML = ""; // Clear existing options
+          selectElement.innerHTML = "";
 
-          if (submissionCount < 7) {
+          if (submissionCount < 15) {
             for (let i = 1; i <= submissionCount; i++) {
               const option = document.createElement("option");
               option.value = i;
-              option.textContent = `${i} day${i > 1 ? 's' : ''}`;
+              option.textContent = `${i} day${i > 1 ? "s" : ""}`;
               selectElement.appendChild(option);
             }
           } else {
-            for (let i = 7; i <= submissionCount; i += 7) {
+            for (let i = 3; i <= submissionCount; i += 3) {
               const option = document.createElement("option");
               option.value = i;
               option.textContent = `${i} days`;
@@ -186,7 +167,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     showModal("Error fetching data: " + error.message);
   }
 });
-
 
 function showModal(message) {
   const modalMessage = document.getElementById("errorModalMessage");
@@ -281,8 +261,3 @@ const logoutButton = document.getElementById("logout");
 logoutButton.addEventListener("click", () => {
   window.location.href = "index.html";
 });
-
-
-
-
-

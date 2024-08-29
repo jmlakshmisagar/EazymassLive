@@ -3,16 +3,10 @@
   <head>
     <meta charset="UTF-8" />
 
-    <link
-      rel="icon"
-      href="EM-FINAL-LOGO.png"
-      id="favicon"
-      style="filter: invert(1);"
-    />
+    <link rel="icon" href="invertLogo.png" />
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Eazymass</title>
-    <link rel="icon" href="EM-FINAL-LOGO.png" />
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
       rel="stylesheet"
@@ -33,137 +27,8 @@
       integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
       crossorigin="anonymous"
     ></script>
-    <style>
-body {
-  position: relative;
-  overflow: hidden;
-}
 
-.ball {
-  position: absolute;
-  top: -80%; /* Initial position */
-  background-image: linear-gradient(-45deg, #202020 0%, #171717 100%);
-  width: 100%;
-  height: 120%;
-  border-radius: 0 0 50% 50%;
-  z-index: -1; /* Ensure it's behind other content */
-  transition: top 2s ease-out; /* Smooth transition for movement */
-}
-
-.ball.animate {
-  top: 0%; /* End position after animation */
-}
-
-.container {
-  padding-top: 6%;
-  position: relative;
-  z-index: 1; /* Ensure content is above the ball */
-}
-
-
-
-      .btn-holder {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        max-width: 1000px;
-        margin: 25px auto 35px;
-      }
-
-      .btn {
-        position: relative;
-        display: inline-block;
-        width: auto;
-        height: auto;
-        background-color: transparent;
-        border: none;
-        cursor: pointer;
-        margin: 0px 25px 15px;
-        min-width: 150px;
-      }
-
-      .btn span {
-        position: relative;
-        display: inline-block;
-        font-size: 14px;
-        font-weight: bold;
-        letter-spacing: 2px;
-        text-transform: uppercase;
-        color: #fff;
-        padding: 15px 20px;
-        transition: 0.3s;
-        z-index: 1;
-      }
-
-      .btn::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: #ffffff;
-        z-index: 0;
-        transform: scaleY(0);
-        transform-origin: bottom;
-        transition: transform 0.3s ease-in-out;
-      }
-
-      .btn:hover::before {
-        transform: scaleY(1);
-      }
-
-      .btn:hover span {
-        color: #111111;
-      }
-
-      @media only screen and (max-width: 600px) {
-        .ball {
-          position: absolute;
-          top: -55%;
-          background-image: linear-gradient(-45deg, #202020 0%, #171717 100%);
-          width: 100%;
-          height: 95%;
-          border-radius: 0 0 250px 250px;
-        }
-
-        @keyframes slideDown {
-          from {
-            top: -150%;
-          }
-          to {
-            top: -120%;
-          }
-        }
-      }
-
-      @keyframes slideDown {
-        from {
-          top: -200%;
-        }
-        to {
-          top: -80%;
-        }
-      }
-
-      .centered-content {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-      }
-
-      .centered-content h1 {
-        font-size: 2.5rem;
-        font-weight: 700;
-      }
-
-      .centered-content p {
-        font-size: 1.1rem;
-        line-height: 1.5;
-      }
-    </style>
+    <link rel="stylesheet" href="styleindex.css" />
   </head>
   <body>
     <main>
@@ -175,7 +40,7 @@ body {
               src="EM-FINAL-LOGO.png"
               alt="logo"
               class="img-fluid"
-              style="filter: invert(1); scale: 0.9;"
+              style="filter: invert(1); scale: 0.75;"
             />
           </div>
           <div class="col-md-6 col-sm-12 text-white centered-content">
@@ -200,63 +65,17 @@ body {
         </div>
       </div>
 
-      <p style="
-      position: fixed;
-      bottom: 1%;
-      left: 50%;
-      transform: translateX(-50%);
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      font-size: 1rem;
-      color: #111111db;
-      margin: 0;
-      padding: 10px;
-      background-color: transparent;
-    ">
-      Eazy by <a href="https://www.linkedin.com/in/lakshmisagar-jm/" style="color: #111111; text-decoration: none;">Lakshmisagar J M</a>
-    </p>
-    
+      <p class="lxdetail">
+        Eazy by
+        <a
+          href="https://www.linkedin.com/in/lakshmisagar-jm/"
+          style="color: #111111; text-decoration: none;"
+          >Lakshmisagar J M</a
+        >
+      </small>
     </main>
 
-    <script>
-    
-    function generateToken(length) {
-      const charset = "0123456789abcdef";
-      let token = "";
-      for (let i = 0; i < length; i++) {
-        const randomIndex = Math.floor(Math.random() * charset.length);
-        token += charset[randomIndex];
-      }
-      return token;
-    }
-    
-    document.addEventListener("DOMContentLoaded", () => {
-      const ball = document.querySelector(".ball");
-      const joinButton = document.querySelector(".btn-join");
-    
-      // Move the ball down when the page loads
-      ball.style.top = '0%';
-    
-      joinButton.addEventListener("click", (e) => {
-        e.preventDefault();
-    
-        // Move the ball up
-        ball.style.top = '-120%';
-    
-        // Wait for animation to complete before redirecting
-        setTimeout(() => {
-          const storedUid = localStorage.getItem("uid");
-    
-          if (storedUid) {
-            const token = generateToken(250);
-            window.location.href = `dashboard.html?token=${token}&uid=${storedUid}`;
-          } else {
-            window.location.href = "loginsignup.html";
-          }
-        }, 2000); // Adjust delay to match transition duration
-      });
-    });
-    
 
-    </script>
+    <script src="scriptindex.js"></script>
   </body>
 </html>

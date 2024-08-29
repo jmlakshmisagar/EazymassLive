@@ -1,22 +1,8 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getDatabase, set, ref, update, push, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+import { database, auth, storage } from './firebaseConfig.js';
+import { set, ref, update, push, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyBOzm7Cn9HRbRwYZbIaU3lFZKICT8juw2o",
-  authDomain: "authentication-app-eazymass.firebaseapp.com",
-  databaseURL: "https://authentication-app-eazymass-default-rtdb.firebaseio.com",
-  projectId: "authentication-app-eazymass",
-  storageBucket: "authentication-app-eazymass.appspot.com",
-  messagingSenderId: "35732165848",
-  appId: "1:35732165848:web:ff2dd1f37b26b0d98af3ad"
-};
-
-const app = initializeApp(firebaseConfig);
-const database = getDatabase(app);
-const auth = getAuth(app);
-const storage = getStorage(app);
 
 function generateToken(length) {
   const charset = '0123456789abcdef';
@@ -34,8 +20,8 @@ async function handleLogin() {
     try {
       const userSnapshot = await get(ref(database, 'users/' + storedUid));
       if (userSnapshot.exists()) {
-        const token = generateToken(250);
-        window.location.href = `dashboard.html?token=${token}&uid=${storedUid}`;
+        const token = generateToken(120);
+        window.location.href = `dashboard.html?token=${token}&uid=${storedUid}&token=${token}`;
       } else {
         localStorage.removeItem('uid'); // Remove invalid UID
       }
@@ -155,3 +141,15 @@ async function uploadProfilePic(file) {
 
 // Check localStorage for UID on page load
 document.addEventListener('DOMContentLoaded', handleLogin);
+
+const sign_in_btn = document.querySelector("#sign-in-btn");
+const sign_up_btn = document.querySelector("#sign-up-btn");
+const container = document.querySelector(".container");
+
+sign_up_btn.addEventListener("click", () => {
+  container.classList.add("sign-up-mode");
+});
+
+sign_in_btn.addEventListener("click", () => {
+  container.classList.remove("sign-up-mode");
+});

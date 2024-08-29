@@ -1,0 +1,165 @@
+body {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  position: relative;
+  overflow: hidden;
+}
+
+body::-webkit-scrollbar {
+  width: 0;
+}
+
+.ball {
+  position: absolute;
+  top: -80%;
+  background-image: linear-gradient(-45deg, #202020 0%, #171717 100%);
+  width: 100%;
+  height: 120%;
+  border-radius: 0 0 50% 50%;
+  z-index: -1;
+  transition: top 2s ease-out;
+}
+
+.ball.animate {
+  top: 0%;
+}
+
+.container {
+  padding-top: 6%;
+  position: relative;
+  z-index: 1;
+}
+
+.btn-holder {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 1000px;
+  margin: 25px auto 35px;
+}
+
+.btn {
+  position: relative;
+  display: inline-block;
+  width: auto;
+  height: auto;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  margin: 0px 25px 15px;
+  min-width: 150px;
+}
+
+.btn span {
+  position: relative;
+  display: inline-block;
+  font-size: 14px;
+  font-weight: bold;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #fff;
+  padding: 15px 20px;
+  transition: 0.3s;
+  z-index: 1;
+}
+
+.btn::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ffffff;
+  z-index: 0;
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform 0.3s ease-in-out;
+}
+
+.btn:hover::before {
+  transform: scaleY(1);
+}
+
+.btn:hover span {
+  color: #111111;
+}
+
+.centered-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.centered-content h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+}
+
+.centered-content p {
+  font-size: 1.1rem;
+  line-height: 1.5;
+}
+
+.lxdetail {
+  position: fixed;
+  bottom: 1%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1rem;
+  color: #111111db;
+  margin: 0;
+  padding: 10px;
+  background-color: transparent;
+}
+
+/* Mobile View Adjustments */
+@media only screen and (max-width: 600px) {
+  .ball {
+    top: -60%;
+    height: 88vh;
+    border-radius: 0 0 150px 150px;
+  }
+
+  .btn-holder {
+    flex-direction: column;
+    align-items: center;
+    margin: 15px auto 25px;
+  }
+
+  .btn {
+    margin: 10px 0;
+    min-width: 120px;
+  }
+
+  .btn span {
+    font-size: 12px;
+    padding: 10px 15px;
+  }
+
+  .centered-content h1 {
+    font-size: 2rem;
+  }
+
+  .centered-content p {
+    font-size: 1rem;
+    padding: 0 20px;
+  }
+
+  .lxdetail {
+    font-size: 0.9rem;
+    padding: 0px;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    top: -200%;
+  }
+  to {
+    top: -80%;
+  }
+}

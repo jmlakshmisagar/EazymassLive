@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" href="EM-FINAL-LOGO.png" />
+    <link rel="icon" href="invertLogo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link
       rel="stylesheet"
@@ -15,7 +15,7 @@
       src="https://kit.fontawesome.com/64d58efce2.js"
       crossorigin="anonymous"
     ></script>
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="styleLogin.css" />
     <title>Eazymass</title>
   </head>
   <body>
@@ -103,19 +103,6 @@
         </div>
       </div>
     </div>
-    <script src="app.js" type="module"></script>
-    <script>
-      const sign_in_btn = document.querySelector("#sign-in-btn");
-      const sign_up_btn = document.querySelector("#sign-up-btn");
-      const container = document.querySelector(".container");
-
-      sign_up_btn.addEventListener("click", () => {
-        container.classList.add("sign-up-mode");
-      });
-
-      sign_in_btn.addEventListener("click", () => {
-        container.classList.remove("sign-up-mode");
-      });
-    </script>
+    <script src="scriptLogin.js" type="module"></script>
   </body>
 </html>
