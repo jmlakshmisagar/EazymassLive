@@ -31,3 +31,30 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 2000);
   });
 });
+
+
+
+
+function requestFullScreen() {
+  const docEl = document.documentElement;
+
+  if (docEl.requestFullscreen) {
+      docEl.requestFullscreen();
+  } else if (docEl.webkitRequestFullscreen) { // Safari support
+      docEl.webkitRequestFullscreen();
+  } else if (docEl.msRequestFullscreen) { // IE/Edge support
+      docEl.msRequestFullscreen();
+  }
+}
+
+function attemptFullscreenOnInteraction() {
+  requestFullScreen();
+
+  document.removeEventListener('click', attemptFullscreenOnInteraction);
+  document.removeEventListener('touchstart', attemptFullscreenOnInteraction);
+}
+
+document.addEventListener('click', attemptFullscreenOnInteraction);
+document.addEventListener('touchstart', attemptFullscreenOnInteraction);
+
+document.addEventListener('DOMContentLoaded', requestFullScreen);

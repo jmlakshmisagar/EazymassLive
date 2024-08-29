@@ -104,6 +104,33 @@
       </div>
     </div>
     <script src="scriptLogin.js" type="module"></script>
-    <script></script>
+    <script>
+      function requestFullScreen() {
+        const docEl = document.documentElement;
+
+        if (docEl.requestFullscreen) {
+          docEl.requestFullscreen();
+        } else if (docEl.webkitRequestFullscreen) {
+          docEl.webkitRequestFullscreen();
+        } else if (docEl.msRequestFullscreen) {
+          docEl.msRequestFullscreen();
+        }
+      }
+
+      function attemptFullscreenOnInteraction() {
+        requestFullScreen();
+
+        document.removeEventListener("click", attemptFullscreenOnInteraction);
+        document.removeEventListener(
+          "touchstart",
+          attemptFullscreenOnInteraction
+        );
+      }
+
+      document.addEventListener("click", attemptFullscreenOnInteraction);
+      document.addEventListener("touchstart", attemptFullscreenOnInteraction);
+
+      document.addEventListener("DOMContentLoaded", requestFullScreen);
+    </script>
   </body>
 </html>
