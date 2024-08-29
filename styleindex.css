@@ -1,11 +1,13 @@
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700;800&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap');
+
 
 body {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
   position: relative;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Nunito Sans", sans-serif;
+
   overflow: hidden;
 }
 
@@ -33,7 +35,6 @@ body::-webkit-scrollbar {
   position: relative;
   z-index: 1;
 }
-
 .btn-holder {
   display: flex;
   flex-wrap: wrap;
@@ -48,7 +49,8 @@ body::-webkit-scrollbar {
   width: auto;
   height: auto;
   background-color: transparent;
-  border: none;
+  border: 2px solid white; /* White border */
+  border-radius: 15px; /* Rounded corners */
   cursor: pointer;
   margin: 0px 25px 15px;
   min-width: 150px;
@@ -79,6 +81,7 @@ body::-webkit-scrollbar {
   transform: scaleY(0);
   transform-origin: bottom;
   transition: transform 0.3s ease-in-out;
+  border-radius: 12px; /* Rounded corners for the hover effect */
 }
 
 .btn:hover::before {
@@ -88,6 +91,7 @@ body::-webkit-scrollbar {
 .btn:hover span {
   color: #111111;
 }
+
 
 .centered-content {
   display: flex;

@@ -116,21 +116,6 @@
           docEl.msRequestFullscreen();
         }
       }
-
-      function attemptFullscreenOnInteraction() {
-        requestFullScreen();
-
-        document.removeEventListener("click", attemptFullscreenOnInteraction);
-        document.removeEventListener(
-          "touchstart",
-          attemptFullscreenOnInteraction
-        );
-      }
-
-      document.addEventListener("click", attemptFullscreenOnInteraction);
-      document.addEventListener("touchstart", attemptFullscreenOnInteraction);
-
-      document.addEventListener("DOMContentLoaded", requestFullScreen);
     </script>
   </body>
 </html>

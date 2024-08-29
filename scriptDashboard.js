@@ -2,13 +2,17 @@ import { database, ref, get, push } from "./firebaseChartSetup.js";
 
 const urlParams = new URLSearchParams(window.location.search);
 const uid = urlParams.get("uid");
+const accesstoken = urlParams.get("accesstoken");
 
 document.addEventListener("DOMContentLoaded", async function () {
   try {
     const userRef = ref(database, `users/${uid}`);
     const userSnapshot = await get(userRef);
 
-    if (userSnapshot.exists()) {
+    const retrivetoken = localStorage.getItem('accesstoken');
+
+
+    if (userSnapshot.exists() && retrivetoken==accesstoken ) {
       const userData = userSnapshot.val();
       const username = userData.username;
 
@@ -140,7 +144,7 @@ document.addEventListener("DOMContentLoaded", async function () {
           selectElement.innerHTML = "";
 
           if (submissionCount < 15) {
-            for (let i = 1; i <= submissionCount; i++) {
+            for (let i = 2; i <= submissionCount; i++) {
               const option = document.createElement("option");
               option.value = i;
               option.textContent = `${i} day${i > 1 ? "s" : ""}`;
@@ -161,7 +165,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         document.getElementById("firstEntryModal").style.display = "block";
       }
     } else {
-      console.log("User data not found.");
+      showModal("Access denied" );
     }
   } catch (error) {
     showModal("Error fetching data: " + error.message);
@@ -228,6 +232,8 @@ document
         const submissionsRef = ref(database, `users/${uid}/submissions`);
         const snapshot = await get(submissionsRef);
         let dateExists = false;
+
+
 
         if (snapshot.exists()) {
           const submissions = snapshot.val();

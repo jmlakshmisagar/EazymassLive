@@ -56,6 +56,36 @@
   </head>
   <body>
     <div class="ball"></div>
+    <div
+      class="sticky-top"
+      style="background-color: #2e2e2e; border-bottom: 1px solid #a1a1a1;"
+    >
+      <div
+        class="container py-3 px-4 d-flex align-items-center justify-content-between"
+      >
+        <!-- Header content goes here -->
+        <div class="top text-center d-flex align-items-center">
+          <img
+            src="EM-FINAL-LOGO.png"
+            alt="logo"
+            style="filter: invert(0.8);"
+            width="40px"
+          />
+          <span style="font-size: 1.6rem; margin-left: 10px; font-weight: 500;"
+            >Eazymass</span
+          >
+        </div>
+        <a href="" style="text-decoration: none; color: white;" class="logout"
+          ><p class="mb-0" style="font-size: 1.1rem;">
+            <i
+              class="fa-solid fa-right-from-bracket"
+              style="color: rgb(255, 217, 0);"
+            ></i>
+            <span style="margin-left: 4px;">Logout</span>
+          </p></a
+        >
+      </div>
+    </div>
 
     <main>
       <div
@@ -171,38 +201,6 @@
         </div>
       </div>
 
-      <div
-        class="sticky-top"
-        style="background-color: #2e2e2e; border-bottom: 1px solid #a1a1a1;"
-      >
-        <div
-          class="container py-3 px-4 d-flex align-items-center justify-content-between"
-        >
-          <!-- Header content goes here -->
-          <div class="top text-center d-flex align-items-center">
-            <img
-              src="EM-FINAL-LOGO.png"
-              alt="logo"
-              style="filter: invert(0.8);"
-              width="40px"
-            />
-            <span
-              style="font-size: 1.6rem; margin-left: 10px; font-weight: 500;"
-              >Eazymass</span
-            >
-          </div>
-          <a href="" style="text-decoration: none; color: white;" class="logout"
-            ><p class="mb-0" style="font-size: 1.1rem;">
-              <i
-                class="fa-solid fa-right-from-bracket"
-                style="color: rgb(255, 217, 0);"
-              ></i>
-              <span style="margin-left: 4px;">Logout</span>
-            </p></a
-          >
-        </div>
-      </div>
-
       <div id="firstEntryModal" class="modal w-100">
         <div class="modal-content p-4">
           <span class="close-button">&times;</span>
@@ -281,7 +279,7 @@
                   class="mb-3"
                   style="border-radius: 50%;"
                 />
-                <h4 id="username-tag">Eazy</h4>
+                <h4 id="username-tag">Eazy User</h4>
                 <h5 style="color: #b9b9b9;">
                   Joined : <span id="joineddate">Now</span>
                 </h5>
@@ -301,7 +299,7 @@
                   <h5 style="color: #b9b9b9;">Average</h5>
                   <br />
                   <h1 style="color: rgb(255, 217, 0);">
-                    <span style="font-size: 2.75rem;" id="avgweight">--</span>kg
+                    <span  id="avgweight">--</span>kg
                   </h1>
                 </div>
                 <div
@@ -310,7 +308,7 @@
                   <h5 style="color: #b9b9b9;">Range</h5>
                   <br />
                   <h1 style="color: rgb(255, 217, 0);">
-                    <span style="font-size: 2.75rem;" id="range">--</span>kg
+                    <span  id="range">--</span>kg
                   </h1>
                 </div>
                 <div
@@ -319,7 +317,7 @@
                   <h5 style="color: #b9b9b9;">Fluctuation</h5>
                   <br />
                   <h1 style="color: rgb(255, 217, 0);">
-                    <span style="font-size: 2.75rem;" id="fluctuation">--</span
+                    <span  id="fluctuation">--</span
                     >kg
                   </h1>
                 </div>
@@ -328,7 +326,7 @@
                 >
                   <h5 style="color: #b9b9b9;">Trend</h5>
                   <br />
-                  <h1 style="color: rgb(255, 217, 0);" id="trend">Eazy</h1>
+                  <h1 style="color: rgb(255, 217, 0);" id="trend">Eazy Trend</h1>
                 </div>
               </div>
             </div>
@@ -459,7 +457,10 @@
           .getElementById("confirmLogout")
           .addEventListener("click", function () {
             localStorage.removeItem("uid");
-            window.location.href = "index.html";
+            localStorage.removeItem("accesstoken");
+            setTimeout(() => {
+              window.location.href = "index.html";
+            }, 350);
           });
       });
 
@@ -505,8 +506,6 @@
           window.open(whatsappUrl, "_blank");
         });
       });
- 
-
     </script>
   </body>
 </html>

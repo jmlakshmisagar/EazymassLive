@@ -14,6 +14,10 @@ function generateToken(length) {
   return token;
 }
 
+function reverse(str) {
+  return str.split('').reverse().join('');
+}
+
 async function handleLogin() {
   const storedUid = localStorage.getItem('uid');
   if (storedUid) {
@@ -53,9 +57,13 @@ document.getElementById('submittt').addEventListener('click', async (e) => {
       profile_pic: profilePicURL
     });
 
-    localStorage.setItem('uid', user.uid); 
+    
+    
+    localStorage.setItem('uid', user.uid);
     const token = generateToken(120);
-    window.location.href = `dashboard.html?token=${token}&uid=${user.uid}&token=${token}`;
+    const accesstoken = reverse(user.uid);
+    localStorage.setItem('accesstoken',accesstoken);
+    window.location.href = `dashboard.html?token=${token}&uid=${user.uid}&accesstoken=${accesstoken}&token=${token}`;
 
   } catch (error) {
     alert('Error: ' + error.message);
@@ -75,9 +83,13 @@ document.getElementById('login-btn').addEventListener('click', async (e) => {
       last_login: date
     });
 
+    
+    
     localStorage.setItem('uid', user.uid); 
     const token = generateToken(120);
-    window.location.href = `dashboard.html?token=${token}&uid=${user.uid}&token=${token}`;
+    const accesstoken = reverse(user.uid);
+    localStorage.setItem('accesstoken',accesstoken);
+    window.location.href = `dashboard.html?token=${token}&uid=${user.uid}&accesstoken=${accesstoken}&token=${token}`;
   } catch (error) {
     alert('Error: ' + error.message);
   }
@@ -106,9 +118,16 @@ const handleGoogleSignIn = async () => {
       }
     }
 
+    
     localStorage.setItem('uid', user.uid);
     const token = generateToken(120);
-    window.location.href = `dashboard.html?token=${token}&uid=${user.uid}&token=${token}`;
+    
+    const accesstoken = reverse(user.uid);
+    localStorage.setItem('accesstoken',accesstoken);
+
+
+    window.location.href = `dashboard.html?token=${token}&uid=${user.uid}&accesstoken=${accesstoken}&token=${token}`;
+
   } catch (error) {
     alert('Error: ' + error.message);
   }
