@@ -273,8 +273,8 @@ form.sign-in-form {
 
 @media (max-width: 870px) {
   .container {
-    min-height: 800px;
-    height: 95vh;
+    min-height: 100vh;
+    height: 100vh;
   }
   .signin-signup {
     width: 100%;
@@ -383,19 +383,19 @@ form.sign-in-form {
     display: none;
   }
   .panel .content {
-    padding: 1rem 1rem;
+    padding: 0 1rem 2rem 1rem;
   }
   .container {
     padding: 1.5rem;
   }
 
   .container:before {
-    bottom: 72%;
+    bottom: 65%;
     left: 50%;
   }
 
   .container.sign-up-mode:before {
-    bottom: 28%;
+    bottom: 35%;
     left: 50%;
   }
 }
