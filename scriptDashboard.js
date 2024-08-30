@@ -143,7 +143,7 @@ document.addEventListener("DOMContentLoaded", async function () {
           selectElement.innerHTML = "";
 
           if (submissionCount < 15) {
-            for (let i = 2; i <= submissionCount; i++) {
+            for (let i = 1; i <= submissionCount; i++) {
               const option = document.createElement("option");
               option.value = i;
               option.textContent = `${i} day${i > 1 ? "s" : ""}`;
