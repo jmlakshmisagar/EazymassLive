@@ -1,5 +1,9 @@
 "use client"
 
+import { useEffect, useState } from 'react'
+import { auth } from "@/lib/firebase"
+import { userService } from "../services/user.service"
+
 import {
   BellIcon,
   CreditCardIcon,
@@ -28,20 +32,30 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
-import EditProfile from "./edit-profile"
-import { useState } from "react"
 
-export function NavUser({
-  user,
-}: {
-  user: {
-    name: string
-    email: string
-    avatar: string
-  }
-}) {
-  const { isMobile } = useSidebar()
-  const [isEditProfileOpen, setIsEditProfileOpen] = useState(false)
+import EditProfile from './edit-profile'
+
+interface UserDetails {
+  name: string
+  email: string
+  avatar: string
+  dateOfBirth?: string
+  gender?: string
+}
+
+interface NavUserDisplayData {
+  name: string;
+  email: string;
+  avatar: string;
+}
+
+interface NavUserProps {
+  user: NavUserDisplayData;
+}
+
+export function NavUser({ user }: NavUserProps) {
+  const { isMobile } = useSidebar();
+  const [showEditProfile, setShowEditProfile] = useState(false);
 
   return (
     <SidebarMenu>
@@ -52,9 +66,9 @@ export function NavUser({
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
-              <Avatar className="h-8 w-8 rounded-lg grayscale">
+              <Avatar className="h-8 w-8 rounded-lg">
                 <AvatarImage src={user.avatar} alt={user.name} />
-                <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                <AvatarFallback>{user.name.slice(0, 2).toUpperCase()}</AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">{user.name}</span>
@@ -73,23 +87,23 @@ export function NavUser({
           >
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-              <Avatar className="h-8 w-8 rounded-lg">
-                <AvatarImage src={user.avatar} alt={user.name} />
-                <AvatarFallback className="rounded-lg">CN</AvatarFallback>
-              </Avatar>
-              <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{user.name}</span>
-                <span className="truncate text-xs text-muted-foreground">
-                {user.email}
-                </span>
-              </div>
+                <Avatar className="h-8 w-8 rounded-lg">
+                  <AvatarImage src={user.avatar} alt={user.name} />
+                  <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                </Avatar>
+                <div className="grid flex-1 text-left text-sm leading-tight">
+                  <span className="truncate font-medium">{user.name}</span>
+                  <span className="truncate text-xs text-muted-foreground">
+                    {user.email}
+                  </span>
+                </div>
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem onSelect={() => setIsEditProfileOpen(true)}>
+              <DropdownMenuItem onClick={() => setShowEditProfile(true)}>
                 <UserCircleIcon />
-                Edit Profile
+                Edit profile
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
@@ -101,10 +115,11 @@ export function NavUser({
         </DropdownMenu>
 
         <EditProfile 
-          isOpen={isEditProfileOpen} 
-          onClose={() => setIsEditProfileOpen(false)}
+          isOpen={showEditProfile} 
+          onClose={() => setShowEditProfile(false)}
+          initialData={user}
         />
       </SidebarMenuItem>
     </SidebarMenu>
-  )
+  );
 }

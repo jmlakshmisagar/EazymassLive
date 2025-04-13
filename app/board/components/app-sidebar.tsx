@@ -1,8 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { useParams } from "next/navigation"
-import { fetchUserData, type UserData } from "../services/user.service"
+import { useEffect, useState } from "react"
 import {
   ArrowUpCircleIcon,
   BarChartIcon,
@@ -21,6 +20,7 @@ import {
   UsersIcon,
 } from "lucide-react"
 
+import { userService } from "../services/user.service"
 import { NavDocuments } from "../components/nav-documents"
 import { NavMain } from "../components/nav-main"
 import { NavSecondary } from "../components/nav-secondary"
@@ -35,93 +35,124 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const params = useParams<{ userId: string }>();
-  const [userData, setUserData] = React.useState<UserData>({
-    name: '',
-    email: '',
-    avatar: '/avatars/default.png'
-  });
+interface FirebaseUserData {
+  displayName: string;
+  email: string;
+  dateOfBirth: string;
+  avatar?: string;
+  lastLogin: string;
+  createdAt: string;
+  isNewUser: boolean;
+}
 
-  React.useEffect(() => {
-    const loadUserData = async () => {
-      if (params.userId) {
-        const data = await fetchUserData(params.userId);
-        setUserData(data);
+interface UserData {
+  name: string;
+  email: string;
+  dateOfBirth?: string;
+  avatar?: string;
+  lastLogin: string;
+  createdAt?: string;
+  isNewUser?: boolean;
+}
+
+interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
+  userId: string;
+}
+
+interface NavUserDisplayData {
+  name: string;
+  email: string;
+  avatar: string;
+}
+
+const defaultData = {
+  navMain: [
+    {
+      title: "Dashboard",
+      url: "/board",
+      icon: LayoutDashboardIcon,
+    },
+    {
+      title: "Weight History",
+      url: "/history",
+      icon: ListIcon,
+    },
+    {
+      title: "Analytics",
+      url: "/analytics",
+      icon: BarChartIcon,
+    },
+    {
+      title: "Settings",
+      url: "/settings",
+      icon: SettingsIcon,
+    }
+  ],
+  documents: [
+    {
+      name: "Data Library",
+      url: "#",
+      icon: DatabaseIcon,
+    },
+    {
+      name: "Reports",
+      url: "#",
+      icon: ClipboardListIcon,
+    },
+    {
+      name: "Word Assistant",
+      url: "#",
+      icon: FileIcon,
+    },
+  ],
+  navSecondary: []
+}
+
+export function AppSidebar({ userId, ...props }: AppSidebarProps) {
+  const [userData, setUserData] = useState<UserData | null>(null);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const data = await userService.fetchUserData(userId);
+        if (data) {
+          const formattedData: UserData = {
+            name: data.displayName,
+            email: data.email,
+            dateOfBirth: data.dateOfBirth,
+            avatar: data.avatar,
+            lastLogin: data.lastLogin,
+            createdAt: data.createdAt,
+            isNewUser: data.isNewUser
+          };
+          setUserData(formattedData);
+        }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+        // Set default user data on error
+        setUserData({
+          name: 'Guest User',
+          email: '',
+          avatar: '/avatars/default.png',
+          lastLogin: new Date().toISOString(),
+          isNewUser: true
+        });
       }
     };
 
-    loadUserData();
-  }, [params.userId]);
+    if (userId) {
+      fetchUserData();
+    }
+  }, [userId]);
 
-  const data = {
-    user: userData,
-    navMain: [
-      {
-        title: "Dashboard",
-        url: "#",
-        icon: LayoutDashboardIcon,
-      },
-      {
-        title: "Analytics",
-        url: "#",
-        icon: BarChartIcon,
-      }
-    ],
-    navClouds: [
-      {
-        title: "Capture",
-        icon: CameraIcon,
-        isActive: true,
-        url: "#",
-        items: [
-          {
-            title: "Active Proposals",
-            url: "#",
-          },
-          {
-            title: "Archived",
-            url: "#",
-          },
-        ],
-      },
-      {
-        title: "Proposal",
-        icon: FileTextIcon,
-        url: "#",
-        items: [
-          {
-            title: "Active Proposals",
-            url: "#",
-          },
-          {
-            title: "Archived",
-            url: "#",
-          },
-        ],
-      },
-      {
-        title: "Prompts",
-        icon: FileCodeIcon,
-        url: "#",
-        items: [
-          {
-            title: "Active Proposals",
-            url: "#",
-          },
-          {
-            title: "Archived",
-            url: "#",
-          },
-        ],
-      },
-    ],
-    navSecondary: [],
-    documents: [],
-  }
+  const getUserDisplayData = (): NavUserDisplayData => ({
+    name: userData?.name || 'Guest User',
+    email: userData?.email || '',
+    avatar: userData?.avatar || '/avatars/default.png'
+  });
 
   return (
-    <Sidebar collapsible="offcanvas" {...props}>
+    <Sidebar {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
@@ -129,22 +160,22 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               asChild
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
-              <a href="#">
+              <a href="/board">
                 <ArrowUpCircleIcon className="h-5 w-5" />
-                <span className="text-base text-2 font-semibold">Eazymass</span>
+                <span className="text-base font-semibold">Eazy Mass</span>
               </a>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
-        <NavDocuments items={data.documents} />
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
+        <NavMain items={defaultData.navMain} userId={userId} />
+        <NavDocuments items={defaultData.documents} />
+        <NavSecondary items={defaultData.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser user={getUserDisplayData()} />
       </SidebarFooter>
     </Sidebar>
-  )
+  );
 }

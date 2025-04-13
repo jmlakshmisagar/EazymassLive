@@ -1,95 +1,133 @@
 "use client"
 
-import { Button } from "@/components/ui/button"
-import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Calendar } from "@/components/ui/calendar"
 import { useState } from "react"
+import { Button } from "@/components/ui/button"
+import { Drawer, DrawerClose, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer"
+import { Label } from "@/components/ui/label"
+import { Calendar } from "@/components/ui/calendar"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { CalendarIcon } from "lucide-react"
 import { format } from "date-fns"
 import { cn } from "@/lib/utils"
-import { CalendarIcon } from "lucide-react"
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSeparator,
+  InputOTPSlot,
+} from "@/components/ui/input-otp"
+import { userService } from "../services/user.service"
+import { toast } from "sonner"
 
-export function GetWeight() {
-    const [open, setOpen] = useState(false)
-    const [date, setDate] = useState<Date>()
-    const [weight, setWeight] = useState(['', '', '', ''])
+interface GetWeightProps {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  userId: string
+}
 
-    const handleWeightChange = (index: number, value: string) => {
-        const newWeight = [...weight]
-        newWeight[index] = value
-        setWeight(newWeight)
+export function GetWeight({ open, onOpenChange, userId }: GetWeightProps) {
+  const [date, setDate] = useState<Date>()
+  const [weight, setWeight] = useState<string>("")
+  const [isLoading, setIsLoading] = useState(false)
+
+  const handleSave = async () => {
+    if (!date || !weight) {
+      toast.error("Please fill in all fields")
+      return
     }
 
-    const handleSave = () => {
-        const weightValue = weight.join('')
-        console.log('Date:', date)
-        console.log('Weight:', weightValue)
-        setOpen(false)
+    try {
+      setIsLoading(true)
+      await userService.addWeightEntry({
+        date,
+        weight: parseFloat(`${weight.slice(0, 2)}.${weight.slice(2)}`),
+        userId
+      })
+      
+      toast.success("Weight recorded successfully")
+      onOpenChange(false)
+    } catch (error) {
+      console.error('Error saving weight:', error)
+      toast.error("Failed to save weight")
+    } finally {
+      setIsLoading(false)
     }
+  }
 
-    return (
-        <Drawer open={open} onOpenChange={setOpen}>
-            <DrawerTrigger asChild>
-                <Button variant="outline">Record Weight</Button>
-            </DrawerTrigger>
-            <DrawerContent className="p-4">
-                <div className="space-y-4">
-                    <h3 className="text-lg font-semibold">Record Your Weight</h3>
-                    
-                    <div className="space-y-2">
-                        <Label>Date</Label>
-                        <Popover>
-                            <PopoverTrigger asChild>
-                                <Button
-                                    variant="outline"
-                                    className={cn(
-                                        "w-full justify-start text-left font-normal",
-                                        !date && "text-muted-foreground"
-                                    )}
-                                >
-                                    <CalendarIcon className="mr-2 h-4 w-4" />
-                                    {date ? format(date, "PPP") : "Pick a date"}
-                                </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0">
-                                <Calendar
-                                    mode="single"
-                                    selected={date}
-                                    onSelect={setDate}
-                                    initialFocus
-                                />
-                            </PopoverContent>
-                        </Popover>
-                    </div>
+  return (
+    <Drawer open={open} onOpenChange={onOpenChange}>
+      <DrawerContent>
+        <DrawerHeader className="text-center">
+          <DrawerTitle>Record Your Weight</DrawerTitle>
+        </DrawerHeader>
+        <div className="p-4 flex items-center justify-center min-h-[40vh]">
+          <div className="flex flex-col items-center space-y-2 w-full max-w-sm">
+            {/* Date picker */}
+            <div className="w-full space-y-4">
+              <Label className="text-center block text-lg font-medium">Date</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full justify-center text-center font-normal py-6",
+                      !date && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-2 w-2" />
+                    {date ? format(date, "PPP") : "Pick a date"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="center">
+                  <Calendar
+                    mode="single"
+                    selected={date}
+                    onSelect={setDate}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
 
-                    <div className="space-y-2">
-                        <Label>Weight (kg)</Label>
-                        <div className="flex gap-2">
-                            {[0, 1, 2, 3].map((index) => (
-                                <Input
-                                    key={index}
-                                    type="text"
-                                    maxLength={1}
-                                    className="w-12 text-center"
-                                    value={weight[index]}
-                                    onChange={(e) => handleWeightChange(index, e.target.value)}
-                                    inputMode="numeric"
-                                    pattern="[0-9]*"
-                                />
-                            ))}
-                        </div>
-                    </div>
+            {/* Weight input */}
+            <div className="w-full space-y-4">
+              <Label className="text-center block text-lg font-medium">Weight</Label>
+              <div className="flex justify-center">
+                <InputOTP 
+                  maxLength={4} 
+                  value={weight} 
+                  onChange={(value) => setWeight(value)}
+                  placeholder="0000"
+                  className="scale-110"
+                >
+                  <InputOTPGroup>
+                    <InputOTPSlot index={0} />
+                    <InputOTPSlot index={1} />
+                  </InputOTPGroup>
+                  <InputOTPSeparator>.</InputOTPSeparator>
+                  <InputOTPGroup>
+                    <InputOTPSlot index={2} />
+                    <InputOTPSlot index={3} />
+                  </InputOTPGroup>
+                </InputOTP>
+              </div>
+              <div className="text-center text-sm text-muted-foreground mt-4 flex justify-center gap-8">
+                <span>Kilos</span>
+                <span>Grams</span>
+              </div>
+            </div>
 
-                    <div className="flex gap-2 justify-end">
-                        <Button variant="outline" onClick={() => setOpen(false)}>
-                            Cancel
-                        </Button>
-                        <Button onClick={handleSave}>Save</Button>
-                    </div>
-                </div>
-            </DrawerContent>
-        </Drawer>
-    )
+            {/* Buttons */}
+            <div className="flex gap-6 justify-center w-full pt-4">
+              <DrawerClose asChild>
+                <Button variant="outline" className="w-28">Cancel</Button>
+              </DrawerClose>
+              <Button onClick={handleSave} className="w-28" disabled={isLoading}>
+                {isLoading ? "Saving..." : "Save"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      </DrawerContent>
+    </Drawer>
+  )
 }

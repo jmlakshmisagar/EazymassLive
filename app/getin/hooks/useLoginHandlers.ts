@@ -11,7 +11,7 @@ import { checkUserExists, createUserDocument } from '../services/user.service';
 import { useAuthRedirect } from './useAuthRedirect';
 import { useRegistration } from './useRegistration';
 import { showToast } from '../../../components/toasts';
-import { UserCredential, User } from 'firebase/auth';
+import { UserCredential, User, OAuthProvider } from 'firebase/auth';
 import { encodeUserId } from '@/app/utils/id-encoder';
 
 interface PendingCredentials {
@@ -81,7 +81,7 @@ export const useLoginHandlers = () => {
         e.preventDefault();
         if (!isOnline) {
             showToast('Error', 'error', 'No internet connection');
-            return;
+            return null;
         }
 
         let rateLimitError = false;
@@ -92,10 +92,10 @@ export const useLoginHandlers = () => {
             if (isNewUser || !user.displayName) {
                 setPendingCredentials({ user, email, password });
                 setShowNewUserDialog(true);
-                return;
+                return null;
             }
 
-            await handleSuccessfulLogin(user);
+            return await handleSuccessfulLogin(user);
         } catch (error: any) {
             console.error('Error during email/password login:', error);
             showToast(
@@ -108,30 +108,33 @@ export const useLoginHandlers = () => {
                 rateLimitError = true;
                 // Keep the loading state for rate limit duration
                 setTimeout(() => setIsLoading(false), 30000);
-                return;
+                return null;
             }
         } finally {
             if (!rateLimitError) {
                 setIsLoading(false);
             }
         }
+        return null;
     };
 
     const handleSuccessfulLogin = async (user: User) => {
         try {
-            localStorage.setItem('originalUid', user.uid);
-            const encodedUid = encodeUserId(user.uid);
-            router.push(`/board/${encodedUid}`);
+            // Remove localStorage and URL encoding
+            const uid = user.uid;
+            // Return the uid instead of navigation
+            return uid;
         } catch (error) {
             console.error('Login success handler error:', error);
             showToast('Error', 'error', 'Failed to process login');
+            throw error;
         }
     };
 
     const handleRegistration = async (data: { name: string, photoURL?: string, dateOfBirth: string }) => {
         if (!data.dateOfBirth) {
             showToast("Registration Failed", "error", "Date of birth is required");
-            return;
+            return null;
         }
 
         try {
@@ -160,14 +163,15 @@ export const useLoginHandlers = () => {
             });
 
             showToast("Registration Complete", "success", "Welcome to Eazymass!");
-            localStorage.setItem('uid', user.uid);
-            window.location.href = '/board';
+            return user.uid;
         } catch (error: any) {
             console.error('Error during registration:', error);
             showToast("Registration Failed", "error", error.message);
+            throw error;
         } finally {
             setIsLoading(false);
             setPendingCredentials(null);
+            setShowRegistrationDrawer(false);
         }
     };
 
@@ -188,6 +192,27 @@ export const useLoginHandlers = () => {
         }
     };
 
+    const handleMicrosoftLogin = async () => {
+        // try {
+        //     setLoadingProvider('microsoft');
+        //     const { user, isNewUser } = await handleProviderLoginWithState(providers.microsoft, 'Microsoft');
+            
+        //     if (isNewUser || !user.displayName) {
+        //         setPendingCredentials({ user });
+        //         setShowNewUserDialog(true);
+        //         return null;
+        //     }
+
+        //     return await handleSuccessfulLogin(user);
+        // } catch (error) {
+        //     console.error('Microsoft login error:', error);
+        //     showToast('Error', 'error', 'Microsoft login failed');
+        //     throw error;
+        // } finally {
+        //     setLoadingProvider(null);
+        // }
+    };
+
     return {
         isLoading,
         email,
@@ -198,7 +223,7 @@ export const useLoginHandlers = () => {
         handleGoogleLogin: () => handleProviderLoginWithState(providers.google, 'google'),
         handleFacebookLogin: () => handleProviderLoginWithState(providers.facebook, 'facebook'),
         handleGithubLogin: () => handleProviderLoginWithState(providers.github, 'github'),
-        handleMicrosoftLogin: () => handleProviderLoginWithState(providers.microsoft, 'microsoft'),
+        handleMicrosoftLogin,
         handleEmailPasswordLogin,
         showNewUserDialog,
         showRegistrationDrawer,

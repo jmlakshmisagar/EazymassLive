@@ -12,6 +12,7 @@ export const useRegistration = () => {
     const [showNewUserDialog, setShowNewUserDialog] = useState(false);
     const [showRegistrationDrawer, setShowRegistrationDrawer] = useState(false);
     const [pendingCredentials, setPendingCredentials] = useState<UserCredentials | null>(null);
+    const [registeredUserId, setRegisteredUserId] = useState<string | null>(null);
 
     const validateRegistrationData = (data: RegistrationData) => {
         if (!data.name?.trim()) {
@@ -58,16 +59,9 @@ export const useRegistration = () => {
                 isNewUser: true
             });
 
-            // Store original user ID
-            const originalUid = pendingCredentials.user.uid;
-            localStorage.setItem('originalUid', originalUid);
-
-            // Encode and redirect
-            const encodedId = encodeUserId(originalUid);
-            console.log('Redirecting to:', `/board/${encodedId}`);
-            
-            // Use window.location for hard redirect
-            window.location.href = `/board/${encodedId}`;
+            const uid = pendingCredentials.user.uid;
+            setRegisteredUserId(uid);
+            return uid;
 
         } catch (error) {
             console.error('Registration error:', error);
@@ -76,6 +70,7 @@ export const useRegistration = () => {
         } finally {
             setIsLoading(false);
             setPendingCredentials(null);
+            setShowRegistrationDrawer(false);
         }
     };
 
@@ -88,6 +83,7 @@ export const useRegistration = () => {
         handleNewUserConfirmation,
         handleRegistration,
         pendingCredentials,
-        setPendingCredentials
+        setPendingCredentials,
+        registeredUserId
     };
 };

@@ -22,27 +22,51 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { cn } from "@/lib/utils";
 import { format } from 'date-fns';
 import { CalendarIcon } from "lucide-react";
+import { userService } from '../services/user.service';
+import { toast } from 'sonner';
 
 interface EditProfileProps {
     isOpen?: boolean;
     onClose?: () => void;
+    initialData: {
+        name: string;
+        email: string;
+        avatar: string;
+    };
 }
 
-export default function EditProfile({ isOpen, onClose }: EditProfileProps) {
+export default function EditProfile({ isOpen, onClose, initialData }: EditProfileProps) {
     const [formData, setFormData] = useState({
-        name: '',
-        email: '',
+        name: initialData.name,
+        email: initialData.email,
         dateOfBirth: new Date(),
         password: '',
         gender: '',
     });
-    const [profileImage, setProfileImage] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [profileImage, setProfileImage] = useState<string | null>(initialData.avatar);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        console.log('Form submitted:', formData);
-        onClose?.();
+        
+        try {
+            setIsLoading(true);
+            await userService.updateUserProfile(initialData.email, {
+                displayName: formData.name,
+                photoURL: profileImage || '',
+                dateOfBirth: format(formData.dateOfBirth, 'yyyy-MM-dd'),
+                gender: formData.gender as 'male' | 'female' | 'other'
+            });
+            
+            toast.success('Profile updated successfully');
+            onClose?.();
+        } catch (error) {
+            console.error('Error updating profile:', error);
+            toast.error('Failed to update profile');
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -190,7 +214,12 @@ export default function EditProfile({ isOpen, onClose }: EditProfileProps) {
                         <Button type="button" variant="outline" onClick={onClose}>
                             Cancel
                         </Button>
-                        <Button type="submit">Save Changes</Button>
+                        <Button 
+                            type="submit" 
+                            disabled={isLoading}
+                        >
+                            {isLoading ? 'Updating...' : 'Save Changes'}
+                        </Button>
                     </div>
                 </form>
             </DialogContent>
