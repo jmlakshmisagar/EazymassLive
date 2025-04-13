@@ -12,6 +12,14 @@ import Spinner from "@/components/spinner";
 import { AvatarUpload } from "./registration/AvatarUpload";
 import { useRegistrationForm } from "../hooks/useRegistrationForm";
 import type { RegistrationDrawerProps } from "../types/registration";
+import { Gender } from "../types/registration";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 
 export function RegistrationDrawer({ isOpen, onClose, onSubmit }: RegistrationDrawerProps) {
     const {
@@ -20,6 +28,8 @@ export function RegistrationDrawer({ isOpen, onClose, onSubmit }: RegistrationDr
         dob,
         setDob,
         photo,
+        gender,
+        setGender,
         isUploading,
         isSubmitting,
         handlePhotoUpload,
@@ -33,7 +43,7 @@ export function RegistrationDrawer({ isOpen, onClose, onSubmit }: RegistrationDr
                     <DrawerTitle>Complete Your Profile</DrawerTitle>
                 </DrawerHeader>
                 <form onSubmit={handleSubmit} className="w-full max-w-md p-6 space-y-6">
-                    <AvatarUpload photoURL={photo} name={name} />
+                    <AvatarUpload photoURL={photo || null} name={name} />
 
                     {/* Form fields */}
                     <div className="space-y-6">
@@ -48,6 +58,26 @@ export function RegistrationDrawer({ isOpen, onClose, onSubmit }: RegistrationDr
                                 required
                                 disabled={isSubmitting}
                             />
+                        </div>
+
+                        {/* Gender Selection */}
+                        <div className="space-y-2">
+                            <Label htmlFor="gender">Gender *</Label>
+                            <Select 
+                                value={gender}
+                                onValueChange={(value: Gender) => setGender(value)}
+                                required
+                            >
+                                <SelectTrigger id="gender" disabled={isSubmitting}>
+                                    <SelectValue placeholder="Select your gender" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="male">Male</SelectItem>
+                                    <SelectItem value="female">Female</SelectItem>
+                                    <SelectItem value="other">Other</SelectItem>
+                                    <SelectItem value="prefer-not-to-say">Prefer not to say</SelectItem>
+                                </SelectContent>
+                            </Select>
                         </div>
 
                         {/* Date of Birth */}

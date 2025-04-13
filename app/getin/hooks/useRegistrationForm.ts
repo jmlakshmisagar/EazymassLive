@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { showToast } from "@/components/toasts";
-import type { RegistrationData } from "../types/registration";
+import type { RegistrationData, Gender } from "../types/registration";
 
-export function useRegistrationForm(onSubmit: (data: RegistrationData) => Promise<void>) {
+export const useRegistrationForm = (onSubmit: (data: RegistrationData) => Promise<void>) => {
     const [name, setName] = useState("");
     const [dob, setDob] = useState<Date>();
-    const [photo, setPhoto] = useState<string>("");
+    const [photo, setPhoto] = useState<string | null>(null);
+    const [gender, setGender] = useState<Gender>("prefer-not-to-say");
     const [isUploading, setIsUploading] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -38,6 +39,10 @@ export function useRegistrationForm(onSubmit: (data: RegistrationData) => Promis
             showToast("Missing date", "error", "Please select your date of birth");
             return false;
         }
+        if (!gender) {
+            showToast("Missing gender", "error", "Please select your gender");
+            return false;
+        }
         if (dob > new Date()) {
             showToast("Invalid date", "error", "Date of birth cannot be in the future");
             return false;
@@ -47,29 +52,22 @@ export function useRegistrationForm(onSubmit: (data: RegistrationData) => Promis
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!validateForm()) return;
+
+        setIsSubmitting(true);
         try {
-            setIsSubmitting(true);
-            
-            if (!validateForm()) {
-                return;
-            }
-
-            if (!dob) {
-                throw new Error("Date of birth is required");
-            }
-
-            await onSubmit({
+            const registrationData: RegistrationData = {
                 name: name.trim(),
-                dateOfBirth: dob.toISOString(),
+                dateOfBirth: dob!.toISOString(),
                 photoURL: photo || null,
-            });
+                gender // This will be typed as Gender
+            };
+
+            console.log('Submitting registration data:', registrationData);
+            await onSubmit(registrationData);
         } catch (error) {
-            console.error('Error submitting form:', error);
-            showToast(
-                "Registration failed", 
-                "error", 
-                error instanceof Error ? error.message : "Failed to complete registration"
-            );
+            console.error('Form submission error:', error);
+            showToast('Error', 'error', 'Failed to complete registration');
         } finally {
             setIsSubmitting(false);
         }
@@ -81,9 +79,11 @@ export function useRegistrationForm(onSubmit: (data: RegistrationData) => Promis
         dob,
         setDob,
         photo,
+        gender,
+        setGender,
         isUploading,
         isSubmitting,
         handlePhotoUpload,
         handleSubmit
     };
-}
+};

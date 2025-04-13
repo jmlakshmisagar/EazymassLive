@@ -1,4 +1,17 @@
+import { User } from 'firebase/auth';
+
 export type Gender = 'male' | 'female' | 'other' | 'prefer-not-to-say';
+
+export interface AuthResult {
+  user: User;
+  isNewUser?: boolean;
+}
+
+export interface UserCredentials {
+    user: User;
+    email: string;
+    password: string;
+}
 
 export interface UserDocument {
     id: string;
@@ -8,7 +21,8 @@ export interface UserDocument {
     createdAt: string;
     lastLogin: string;
     dateOfBirth: string | null;
-    gender: Gender;  // Add this line
+    gender: Gender;
+    isNewUser: boolean;
 }
 
 export interface RegistrationData {
@@ -16,10 +30,4 @@ export interface RegistrationData {
     dateOfBirth: string;
     photoURL?: string | null;
     gender: Gender;
-}
-
-export interface RegistrationDrawerProps {
-    isOpen: boolean;
-    onClose: () => void;
-    onSubmit: (data: RegistrationData) => Promise<void>;
 }

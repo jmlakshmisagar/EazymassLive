@@ -1,49 +1,40 @@
-import { doc, setDoc, getDoc } from 'firebase/firestore';
-import { db } from '@/app/firebaseConfig';
+import { ref, set, get } from 'firebase/database';
+import { database } from '@/lib/firebase';
 import { UserDocument } from '../types/auth.types';
 import { showToast } from '../../../components/toasts';
 
 // Add network state check
 const isOnline = () => navigator.onLine;
 
-export const createUserDocument = async (user: any, additionalData = {}) => {
-    if (!user) {
-        throw new Error('No user data provided');
-    }
-
-    if (!isOnline()) {
-        showToast('Error', 'error', 'No internet connection. Please check your network.');
-        throw new Error('No internet connection');
-    }
-
+export const createUserDocument = async (user: any, additionalData: Partial<UserDocument> = {}) => {
+    if (!user) throw new Error('No user data provided');
+    
     try {
-        const userRef = doc(db, 'users', user.uid);
-        const userSnapshot = await getDoc(userRef);
+        const userRef = ref(database, `users/${user.uid}`);
+        
+        // Create user data with required gender field
+        const userData = {
+            id: user.uid,
+            email: user.email ?? '',
+            displayName: additionalData.displayName || null,
+            photoURL: additionalData.photoURL || null,
+            createdAt: new Date().toISOString(),
+            lastLogin: new Date().toISOString(),
+            dateOfBirth: additionalData.dateOfBirth || null,
+            gender: additionalData.gender, // Remove default value to ensure it's passed
+            isNewUser: true
+        };
 
-        if (!userSnapshot.exists()) {
-            const userData: UserDocument = {
-                id: user.uid,
-                email: user.email ?? '',
-                displayName: user.displayName,
-                photoURL: user.photoURL,
-                createdAt: new Date().toISOString(),
-                lastLogin: new Date().toISOString(),
-                dateOfBirth: null,
-                ...additionalData
-            };
-            await setDoc(userRef, userData);
-        } else {
-            await setDoc(userRef, {
-                lastLogin: new Date().toISOString(),
-                ...additionalData
-            }, { merge: true });
-        }
-    } catch (error: any) {
-        console.error('Error creating/updating user document:', error);
-        const errorMessage = !isOnline() 
-            ? 'No internet connection. Please check your network.'
-            : 'Failed to save user data';
-        showToast('Error', 'error', errorMessage);
+        // Log the data being saved
+        console.log('Saving user data:', userData);
+
+        // Save the complete user document
+        await set(userRef, userData);
+        
+        return userData;
+    } catch (error) {
+        console.error('Error saving user data:', error);
+        showToast('Error', 'error', 'Failed to save user data');
         throw error;
     }
 };
@@ -59,8 +50,8 @@ export const checkUserExists = async (uid: string): Promise<boolean> => {
     }
 
     try {
-        const userRef = doc(db, 'users', uid);
-        const userSnapshot = await getDoc(userRef);
+        const userRef = ref(database, `users/${uid}`);
+        const userSnapshot = await get(userRef);
         return userSnapshot.exists();
     } catch (error: any) {
         console.error('Error checking user existence:', error);

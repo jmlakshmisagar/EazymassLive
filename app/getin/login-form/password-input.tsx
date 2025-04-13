@@ -7,12 +7,6 @@ export function PasswordInput({ password, setPassword, isLoading, error }: Passw
     <div className="grid gap-2">
       <div className="flex items-center">
         <Label htmlFor="password">Password</Label>
-        <a
-          href="#"
-          className="ml-auto text-sm underline-offset-4 hover:underline text-muted-foreground"
-        >
-          Forgot your password?
-        </a>
       </div>
       <Input
         id="password"
