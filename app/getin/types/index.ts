@@ -5,6 +5,10 @@ export interface LoginFormData {
   password: string;
 }
 
+export interface RegistrationData {
+  // Define the structure of RegistrationData here
+}
+
 export interface LoginPageLayoutProps {
   isLoading?: boolean;
   email: string;
@@ -21,5 +25,5 @@ export interface LoginPageLayoutProps {
   showRegistrationDrawer: boolean;
   onNewUserConfirmation: (confirmed: boolean) => void;
   onRegistrationDrawerClose: () => void;
-  onRegistration: (data: unknown) => Promise<void>;
+  onRegistration: (data: RegistrationData) => Promise<void>;
 }

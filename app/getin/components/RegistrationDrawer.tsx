@@ -57,7 +57,7 @@ export function RegistrationDrawer({ isOpen, onClose, onSubmit }: RegistrationDr
                                 placeholder="Enter your full name"
                                 required
                                 disabled={isSubmitting}
-                            />
+                            /> 
                         </div>
 
                         {/* Gender Selection */}

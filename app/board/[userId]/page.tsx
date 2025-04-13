@@ -3,9 +3,9 @@
 import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { User, onAuthStateChanged } from "firebase/auth"
-import { ref, onValue, off } from "firebase/database"
-import { decodeUserId } from "@/app/utils/id-encoder"
-import { auth, database } from "@/lib/firebase" // Changed 'db' to 'database'
+import { decodeUserId, isValidUserId } from "@/app/utils/id-encoder"
+import { getUserData } from "@/app/getin/services/user.service"
+import { auth } from "@/lib/firebase"
 import { AppSidebar } from "../components/app-sidebar"
 import { ChartAreaInteractive } from "../components/chart-area-interactive"
 import { DataTable } from "../components/data-table"
@@ -13,112 +13,80 @@ import { SectionCards } from "../components/section-cards"
 import { SiteHeader } from "../components/site-header"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 
-import data from "./data.json"
+interface UserDetails extends User {
+  dateOfBirth: string;
+  gender: string;
+  isNewUser: boolean;
+}
 
 export default function BoardPage() {
-  const params = useParams<{ userId: string }>()
-  const router = useRouter()
-  const [userDetails, setUserDetails] = useState<User | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [authChecked, setAuthChecked] = useState(false)
+  const params = useParams<{ userId: string }>();
+  const router = useRouter();
+  const [userDetails, setUserDetails] = useState<UserDetails | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    let userRef: any;
-    let unsubscribe: (() => void) | undefined;
+    if (!params.userId) {
+      router.push("/getin");
+      return;
+    }
 
-    const initializeAuth = async () => {
-      try {
-        if (!params.userId) {
-          router.push("/getin");
-          return;
-        }
+    const storedUid = localStorage.getItem('originalUid');
+    if (!storedUid) {
+      router.push("/getin");
+      return;
+    }
 
-        unsubscribe = onAuthStateChanged(auth, (user) => {
-          if (!user) {
-            router.push("/getin");
-            return;
-          }
-
-          try {
-            const decodedUserId = decodeUserId(params.userId);
-            
-            if (user.uid !== decodedUserId) {
-              router.push("/getin");
-              return;
-            }
-
-            setUserDetails(user);
-
-            userRef = ref(database, `users/${decodedUserId}`); // Changed 'db' to 'database'
-            onValue(userRef, (snapshot) => {
-              const userData = snapshot.val();
-              if (userData) {
-                setUserDetails(prevUser => ({
-                  ...prevUser!,
-                  ...userData
-                } as User));
-              }
-              setLoading(false);
-              setAuthChecked(true);
-            }, (error) => {
-              console.error("Database error:", error);
-              setLoading(false);
-              setAuthChecked(true);
-            });
-
-          } catch (error) {
-            console.error("Error in auth flow:", error);
-            router.push("/getin");
-          }
-        });
-
-      } catch (error) {
-        console.error("Initialize auth error:", error);
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (!user) {
         router.push("/getin");
+        return;
       }
-    };
 
-    initializeAuth();
+      try {
+        const userData = await getUserData(storedUid);
+        if (userData) {
+          setUserDetails({
+            ...user,
+            ...userData
+          } as UserDetails);
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+        router.push("/getin");
+      } finally {
+        setLoading(false);
+      }
+    });
 
-    return () => {
-      if (unsubscribe) {
-        unsubscribe();
-      }
-      if (userRef) {
-        off(userRef);
-      }
-    };
+    return () => unsubscribe();
   }, [params.userId, router]);
 
-  if (!authChecked || loading) {
-    return (
-      <div className="flex h-screen w-full items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-      </div>
-    )
+  if (loading) {
+    return <div>Loading...</div>;
   }
 
   if (!userDetails) {
-    return null
+    return <div>User not found</div>;
   }
 
   return (
     <SidebarProvider>
-      <AppSidebar variant="inset" />
-      <SidebarInset>
-        <SiteHeader userDetails={userDetails} />
-        <div className="flex flex-1 flex-col">
-          <div className="@container/main flex flex-1 flex-col gap-2">
-            <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-              <SectionCards />
-              <div className="px-4 lg:px-6">
-                <ChartAreaInteractive />
-              </div>
-              <DataTable data={data} />
+      <div className="flex min-h-screen">
+        <AppSidebar />
+        <main className="flex-1">
+          <SiteHeader userDetails={userDetails} />
+          <div className="container mx-auto p-6">
+            <SectionCards />
+            <div className="mt-6">
+              <ChartAreaInteractive />
+            </div>
+            <div className="mt-6">
+              <DataTable data={[]} />
             </div>
           </div>
-        </div>
-      </SidebarInset>
+        </main>
+      </div>
     </SidebarProvider>
-  )
+  );
 }

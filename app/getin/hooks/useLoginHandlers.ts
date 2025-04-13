@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation'; // Changed from 'next/router'
 import { 
     providers, 
     handleProviderLogin, 
@@ -10,7 +11,8 @@ import { checkUserExists, createUserDocument } from '../services/user.service';
 import { useAuthRedirect } from './useAuthRedirect';
 import { useRegistration } from './useRegistration';
 import { showToast } from '../../../components/toasts';
-import { UserCredential } from 'firebase/auth';
+import { UserCredential, User } from 'firebase/auth';
+import { encodeUserId } from '@/app/utils/id-encoder';
 
 interface PendingCredentials {
     user: UserCredential['user'];
@@ -19,11 +21,14 @@ interface PendingCredentials {
 }
 
 export const useLoginHandlers = () => {
+    const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [loadingProvider, setLoadingProvider] = useState<string | null>(null);
-    const [isOnline, setIsOnline] = useState(navigator.onLine);
+    const [isOnline, setIsOnline] = useState(typeof window !== 'undefined' ? navigator.onLine : true);
+    const [showNewUserDialog, setShowNewUserDialog] = useState(false);
+    const [showRegistrationDrawer, setShowRegistrationDrawer] = useState(false);
 
     useEffect(() => {
         const handleOnline = () => {
@@ -46,17 +51,17 @@ export const useLoginHandlers = () => {
     }, []);
 
     const {
-        showNewUserDialog,
-        showRegistrationDrawer,
-        setShowRegistrationDrawer,
-        setShowNewUserDialog,
+        showNewUserDialog: registrationShowNewUserDialog,
+        showRegistrationDrawer: registrationShowRegistrationDrawer,
+        setShowRegistrationDrawer: registrationSetShowRegistrationDrawer,
+        setShowNewUserDialog: registrationSetShowNewUserDialog,
         handleNewUserConfirmation,
         handleRegistration: originalHandleRegistration,
         pendingCredentials,
         setPendingCredentials
     } = useRegistration();
 
-    const { handleRedirectResult } = useAuthRedirect(setPendingCredentials, setShowNewUserDialog);
+    const { handleRedirectResult } = useAuthRedirect(setPendingCredentials, registrationSetShowNewUserDialog);
 
     const handleProviderLoginWithState = async (provider: any, providerName: string) => {
         if (!isOnline) {
@@ -90,9 +95,7 @@ export const useLoginHandlers = () => {
                 return;
             }
 
-            localStorage.setItem('uid', user.uid);
-            showToast("Login Successful", "success", "Welcome back!");
-            window.location.href = '/board';
+            await handleSuccessfulLogin(user);
         } catch (error: any) {
             console.error('Error during email/password login:', error);
             showToast(
@@ -111,6 +114,17 @@ export const useLoginHandlers = () => {
             if (!rateLimitError) {
                 setIsLoading(false);
             }
+        }
+    };
+
+    const handleSuccessfulLogin = async (user: User) => {
+        try {
+            localStorage.setItem('originalUid', user.uid);
+            const encodedUid = encodeUserId(user.uid);
+            router.push(`/board/${encodedUid}`);
+        } catch (error) {
+            console.error('Login success handler error:', error);
+            showToast('Error', 'error', 'Failed to process login');
         }
     };
 
@@ -157,6 +171,23 @@ export const useLoginHandlers = () => {
         }
     };
 
+    // Create a proper handler for registration drawer close
+    const handleRegistrationDrawerClose = () => {
+        setShowRegistrationDrawer(false);
+        // Also clear pending credentials if drawer is closed
+        setPendingCredentials(null);
+    };
+
+    // Add proper handler for new user dialog confirmation
+    const handleNewUserDialogConfirm = (confirmed: boolean) => {
+        setShowNewUserDialog(false);
+        if (confirmed) {
+            setShowRegistrationDrawer(true);
+        } else {
+            setPendingCredentials(null);
+        }
+    };
+
     return {
         isLoading,
         email,
@@ -176,6 +207,8 @@ export const useLoginHandlers = () => {
         handleRegistration,
         pendingCredentials,
         handleRedirectResult,
-        isOnline
+        isOnline,
+        handleNewUserDialogConfirm,
+        handleRegistrationDrawerClose
     };
 };

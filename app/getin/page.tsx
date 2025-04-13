@@ -1,54 +1,42 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { ErrorBoundary } from "@/components/error-boundary";
 import { LoginPageLayout } from "./components/LoginPageLayout";
 import { useLoginHandlers } from "./hooks/useLoginHandlers";
 
 export default function LoginPage() {
-  const {
-    isLoading,
-    email,
-    setEmail,
-    password,
-    setPassword,
-    loadingProvider,
-    handleGoogleLogin,
-    handleFacebookLogin,
-    handleGithubLogin,
-    handleMicrosoftLogin,
-    handleEmailPasswordLogin,
-    showNewUserDialog,
-    showRegistrationDrawer,
-    setShowRegistrationDrawer,
-    handleNewUserConfirmation,
-    handleRegistration
-  } = useLoginHandlers();
+    const [isMounted, setIsMounted] = useState(false);
+    const handlers = useLoginHandlers();
 
-  const handleFormSubmit = async (e: React.FormEvent, email: string, password: string) => {
-    e.preventDefault();
-    await handleEmailPasswordLogin(e, email, password);
-  };
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
 
-  return (
-    <ErrorBoundary>
-      <LoginPageLayout
-        isLoading={isLoading}
-        email={email}
-        setEmail={setEmail}
-        password={password}
-        setPassword={setPassword}
-        onSubmit={handleFormSubmit}
-        onGoogleLogin={handleGoogleLogin}
-        onFacebookLogin={handleFacebookLogin}
-        onGithubLogin={handleGithubLogin}
-        onMicrosoftLogin={handleMicrosoftLogin}
-        loadingProvider={loadingProvider}
-        showNewUserDialog={showNewUserDialog}
-        showRegistrationDrawer={showRegistrationDrawer}
-        onNewUserConfirmation={handleNewUserConfirmation}
-        onRegistrationDrawerClose={() => setShowRegistrationDrawer(false)}
-        onRegistration={handleRegistration}
-      />
-    </ErrorBoundary>
-  );
+    if (!isMounted) {
+        return null;
+    }
+
+    return (
+        <ErrorBoundary>
+            <LoginPageLayout
+                isLoading={handlers.isLoading}
+                email={handlers.email}
+                setEmail={handlers.setEmail}
+                password={handlers.password}
+                setPassword={handlers.setPassword}
+                onSubmit={(e, email, password) => handlers.handleEmailPasswordLogin(e, email, password)}
+                onGoogleLogin={handlers.handleGoogleLogin}
+                onFacebookLogin={handlers.handleFacebookLogin}
+                onGithubLogin={handlers.handleGithubLogin}
+                onMicrosoftLogin={handlers.handleMicrosoftLogin}
+                loadingProvider={handlers.loadingProvider}
+                showNewUserDialog={handlers.showNewUserDialog}
+                showRegistrationDrawer={handlers.showRegistrationDrawer}
+                onNewUserConfirmation={handlers.handleNewUserDialogConfirm}
+                onRegistrationDrawerClose={handlers.handleRegistrationDrawerClose}
+                onRegistration={handlers.handleRegistration}
+            />
+        </ErrorBoundary>
+    );
 }

@@ -62,3 +62,19 @@ export const checkUserExists = async (uid: string): Promise<boolean> => {
         throw error;
     }
 };
+
+export const getUserData = async (uid: string): Promise<UserDocument | null> => {
+    try {
+        const userRef = ref(database, `users/${uid}`);
+        const snapshot = await get(userRef);
+        
+        if (snapshot.exists()) {
+            return snapshot.val() as UserDocument;
+        }
+        
+        return null;
+    } catch (error) {
+        console.error('Error fetching user data:', error);
+        throw error;
+    }
+};

@@ -43,34 +43,32 @@ export const useRegistration = () => {
     const handleRegistration = async (data: RegistrationData) => {
         try {
             setIsLoading(true);
-            console.log('Starting registration with data:', data); // Debug log
-
             validateRegistrationData(data);
 
             if (!pendingCredentials?.user) {
                 throw new Error("No user credentials found");
             }
 
-            // Create user document with all required fields
-            const userData = {
+            // Save user document
+            await createUserDocument(pendingCredentials.user, {
                 displayName: data.name.trim(),
                 dateOfBirth: data.dateOfBirth,
                 photoURL: data.photoURL,
-                gender: data.gender, // Ensure gender is included
+                gender: data.gender,
                 isNewUser: true
-            };
+            });
 
-            console.log('Creating user document with data:', userData); // Debug log
+            // Store original user ID
+            const originalUid = pendingCredentials.user.uid;
+            localStorage.setItem('originalUid', originalUid);
 
-            await createUserDocument(pendingCredentials.user, userData);
+            // Encode and redirect
+            const encodedId = encodeUserId(originalUid);
+            console.log('Redirecting to:', `/board/${encodedId}`);
+            
+            // Use window.location for hard redirect
+            window.location.href = `/board/${encodedId}`;
 
-            // Show success message
-            showToast('Success', 'success', 'Registration completed successfully');
-
-            // Store user ID and redirect
-            const encodedUserId = encodeUserId(pendingCredentials.user.uid);
-            localStorage.setItem('uid', pendingCredentials.user.uid);
-            window.location.href = `/board/${encodedUserId}`;
         } catch (error) {
             console.error('Registration error:', error);
             showToast('Error', 'error', 'Registration failed');
