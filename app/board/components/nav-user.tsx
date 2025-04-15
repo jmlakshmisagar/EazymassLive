@@ -1,17 +1,6 @@
 "use client"
 
-import { useEffect, useState } from 'react'
-import { auth } from "@/lib/firebase"
-import { userService } from "../services/user.service"
-
-import {
-  BellIcon,
-  CreditCardIcon,
-  LogOutIcon,
-  MoreVerticalIcon,
-  UserCircleIcon,
-} from "lucide-react"
-
+import { useSidebar } from "@/components/ui/sidebar"
 import {
   Avatar,
   AvatarFallback,
@@ -30,32 +19,32 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  useSidebar,
 } from "@/components/ui/sidebar"
 
-import EditProfile from './edit-profile'
+import {
+  LogOutIcon,
+  MoreVerticalIcon,
+  UserCircleIcon,
+} from "lucide-react"
 
-interface UserDetails {
-  name: string
+interface UserData {
+  displayName: string
   email: string
   avatar: string
-  dateOfBirth?: string
-  gender?: string
-}
-
-interface NavUserDisplayData {
-  name: string;
-  email: string;
-  avatar: string;
+  age?: number
+  height?: number
 }
 
 interface NavUserProps {
-  user: NavUserDisplayData;
+  user: UserData;
+  onEditProfile: () => void;
+  onLogout: () => void;
 }
 
-export function NavUser({ user }: NavUserProps) {
+export function NavUser({ user, onEditProfile, onLogout }: NavUserProps) {
   const { isMobile } = useSidebar();
-  const [showEditProfile, setShowEditProfile] = useState(false);
+
+  if (!user) return null;
 
   return (
     <SidebarMenu>
@@ -67,11 +56,11 @@ export function NavUser({ user }: NavUserProps) {
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <Avatar className="h-8 w-8 rounded-lg">
-                <AvatarImage src={user.avatar} alt={user.name} />
-                <AvatarFallback>{user.name.slice(0, 2).toUpperCase()}</AvatarFallback>
+                <AvatarImage src={user.avatar} alt={user.displayName} />
+                <AvatarFallback>{user.displayName.slice(0, 2).toUpperCase()}</AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{user.name}</span>
+                <span className="truncate font-medium">{user.displayName}</span>
                 <span className="truncate text-xs text-muted-foreground">
                   {user.email}
                 </span>
@@ -86,40 +75,28 @@ export function NavUser({ user }: NavUserProps) {
             sideOffset={4}
           >
             <DropdownMenuLabel className="p-0 font-normal">
-              <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarImage src={user.avatar} alt={user.name} />
-                  <AvatarFallback className="rounded-lg">CN</AvatarFallback>
-                </Avatar>
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">{user.name}</span>
-                  <span className="truncate text-xs text-muted-foreground">
-                    {user.email}
-                  </span>
-                </div>
+              <div className="flex flex-col space-y-1 px-1 py-1.5 text-left text-sm">
+                <p className="text-sm font-medium">{user.displayName}</p>
+                <p className="text-xs text-muted-foreground">{user.email}</p>
+                {user.age && <p className="text-xs">Age: {user.age}</p>}
+                {user.height && <p className="text-xs">Height: {user.height}cm</p>}
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem onClick={() => setShowEditProfile(true)}>
-                <UserCircleIcon />
+              <DropdownMenuItem onClick={onEditProfile}>
+                <UserCircleIcon className="mr-2 h-4 w-4" />
                 Edit profile
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <LogOutIcon />
+            <DropdownMenuItem onClick={onLogout}>
+              <LogOutIcon className="mr-2 h-4 w-4" />
               Log out
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-
-        <EditProfile 
-          isOpen={showEditProfile} 
-          onClose={() => setShowEditProfile(false)}
-          initialData={user}
-        />
       </SidebarMenuItem>
     </SidebarMenu>
-  );
+  )
 }

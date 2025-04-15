@@ -17,34 +17,38 @@ import {
 } from "@/components/ui/input-otp"
 import { userService } from "../services/user.service"
 import { toast } from "sonner"
+import { GetWeightProps } from '../services/interfaces'
 
-interface GetWeightProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  userId: string
-}
-
-export function GetWeight({ open, onOpenChange, userId }: GetWeightProps) {
-  const [date, setDate] = useState<Date>()
+export function GetWeight({ 
+  open, 
+  onOpenChange, 
+  userId, 
+  onWeightAdded,
+  userHeight 
+}: GetWeightProps) {
+  const [date, setDate] = useState<Date>(new Date())
   const [weight, setWeight] = useState<string>("")
   const [isLoading, setIsLoading] = useState(false)
 
   const handleSave = async () => {
-    if (!date || !weight) {
-      toast.error("Please fill in all fields")
+    if (!date || !weight || weight.length < 4) {
+      toast.error("Please enter a valid weight")
       return
     }
 
     try {
       setIsLoading(true)
       await userService.addWeightEntry({
-        date,
+        date: date.toISOString(),
         weight: parseFloat(`${weight.slice(0, 2)}.${weight.slice(2)}`),
-        userId
-      })
+        userId,
+        createdAt: new Date().toISOString()
+      }, userHeight)
       
       toast.success("Weight recorded successfully")
+      onWeightAdded()
       onOpenChange(false)
+      setWeight("")
     } catch (error) {
       console.error('Error saving weight:', error)
       toast.error("Failed to save weight")
