@@ -1,81 +1,76 @@
-import { ref, get } from "firebase/database";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
-import { rtdb, db } from "@/lib/firebase";
-import { decodeUserId } from "@/app/utils/id-encoder";
-import { UserData, UserUpdate } from "../interfaces";
-import { ServiceError } from "../core/errors";
-import { CacheService } from "../cache/cache.service";
+import { ref, get, set, update } from "firebase/database";
+import { rtdb } from "@/lib/firebase";
+import { UserData, UserUpdate } from '../interfaces';
+import { ServiceError } from '../core/errors';
 
-export class UserService {
-  static async fetchUserData(encodedUserId: string): Promise<UserData> {
-    try {
-      const userId = decodeUserId(encodedUserId);
-      const userData = await this.getUserFromDb(userId);
-      await CacheService.setCachedData(userId, userData);
-      return userData;
-    } catch (error) {
-      throw new ServiceError({
-        message: 'Failed to fetch user data',
-        code: 'FETCH_USER_FAILED'
-      });
-    }
-  }
+interface WeightEntryInput {
+  userId: string;
+  weight: number;
+  date: string;
+  createdAt: string;
+}
 
-  static async updateProfile(userId: string, updates: UserUpdate): Promise<boolean> {
+export const userService = {
+  async getUserProfile(userId: string): Promise<UserData | null> {
     try {
-      const userRef = doc(db, 'users', userId);
-      const userDoc = await getDoc(userRef);
+      const userRef = ref(rtdb, `users/${userId}`);
+      const snapshot = await get(userRef);
       
-      if (!userDoc.exists()) {
-        throw new ServiceError({
-          message: 'User not found',
-          code: 'USER_NOT_FOUND'
-        });
+      if (!snapshot.exists()) {
+        return null;
       }
 
-      // Calculate age if dateOfBirth is provided
-      const age = updates.dateOfBirth ? 
-          this.calculateAge(new Date(updates.dateOfBirth)) : 
-          undefined;
-
-      await updateDoc(userRef, {
-        ...updates,
-        age,
-        updatedAt: new Date().toISOString()
-      });
-
-      await CacheService.clearCache(userId);
-      return true;
+      return snapshot.val() as UserData;
     } catch (error) {
-      throw new ServiceError({
-        message: 'Failed to update profile',
-        code: 'UPDATE_PROFILE_FAILED'
-      });
+      throw ServiceError.create(
+        'Failed to fetch user profile',
+        'USER_FETCH_FAILED'
+      );
     }
-  }
+  },
 
-  private static calculateAge(birthDate: Date): number {
-    const today = new Date();
-    let age = today.getFullYear() - birthDate.getFullYear();
-    const monthDiff = today.getMonth() - birthDate.getMonth();
-    
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-      age--;
+  async updateProfile(userId: string, data: UserUpdate): Promise<UserData> {
+    try {
+      const userRef = ref(rtdb, `users/${userId}`);
+      const updates = {
+        ...data,
+        updatedAt: new Date().toISOString()
+      };
+      
+      await update(userRef, updates);
+      
+      const updatedProfile = await this.getUserProfile(userId);
+      if (!updatedProfile) {
+        throw new Error('Failed to fetch updated profile');
+      }
+      
+      return updatedProfile;
+    } catch (error) {
+      throw ServiceError.create(
+        'Failed to update profile',
+        'PROFILE_UPDATE_FAILED'
+      );
     }
-    return age;
-  }
+  },
 
-  private static async getUserFromDb(userId: string): Promise<UserData> {
-    const userRef = ref(rtdb, `users/${userId}`);
-    const snapshot = await get(userRef);
-    
-    if (!snapshot.exists()) {
-      throw new ServiceError({
-        message: 'User not found',
-        code: 'USER_NOT_FOUND'
-      });
+  async addWeightEntry(entry: WeightEntryInput, userHeight?: number): Promise<void> {
+    try {
+      const userRef = ref(rtdb, `users/${entry.userId}/weights`);
+      const snapshot = await get(userRef);
+      const currentWeights = snapshot.val() || [];
+      
+      const newEntry = {
+        ...entry,
+        bmi: userHeight ? (entry.weight / ((userHeight/100) ** 2)) : undefined,
+        id: Date.now().toString()
+      };
+      
+      await set(userRef, [...currentWeights, newEntry]);
+    } catch (error) {
+      throw ServiceError.create(
+        'Failed to add weight entry',
+        'WEIGHT_ADD_FAILED'
+      );
     }
-    
-    return snapshot.val();
   }
-}
+};

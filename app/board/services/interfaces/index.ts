@@ -3,23 +3,30 @@ import { Sidebar } from "@/components/ui/sidebar"
 export interface UserData {
   displayName: string;
   email: string;
+  avatar?: string;
   dateOfBirth?: string;
   age?: number;
-  gender?: 'male' | 'female' | 'other';
   height?: number;
-  avatar?: string;
+  gender?: 'male' | 'female' | 'other';
   lastLogin: string;
   createdAt: string;
   isNewUser: boolean;
   weights?: WeightEntry[];
+  updatedAt?: string;
+}
+
+export interface CacheMetadata {
+  expiresAt: number;
+  lastAccessed: number;
+  accessCount: number;
 }
 
 export interface WeightEntry {
   id?: string;
-  date: string;
-  weight: number;
-  createdAt: string;
   userId: string;
+  weight: number;
+  date: string;
+  createdAt: string;
   bmi?: number;
 }
 
@@ -27,15 +34,9 @@ export interface UserUpdate {
   displayName?: string;
   photoURL?: string;
   dateOfBirth?: string;
-  age?: number;
-  height?: number;
   gender?: 'male' | 'female' | 'other';
-}
-
-export interface CacheMetadata {
-  expiresAt: number;
-  lastAccessed: number;
-  accessCount: number;
+  height?: number;
+  age?: number;
 }
 
 export interface ServiceErrorParams {
@@ -53,7 +54,7 @@ export interface EditProfileFormData {
   avatar: string;
 }
 
-export interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
+export interface AppSidebarProps {
   userId: string;
   userData: UserData | null;
   onAddWeight: () => void;

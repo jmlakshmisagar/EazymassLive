@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Kanit, Plus_Jakarta_Sans, Outfit } from 'next/font/google'
-import { Toaster } from "@/components/ui/sonner"
 import { ThemeProvider } from "next-themes"
 import { ToastProvider } from "@/components/toasts"
 

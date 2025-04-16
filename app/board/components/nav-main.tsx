@@ -11,18 +11,24 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
 
-export function NavMain({
-  items,
-  userId,
-}: {
-  items: {
+interface NavMainProps {
+  items: Array<{
     title: string
     url: string
     icon?: LucideIcon
-  }[]
+    onClick?: (callback: () => void) => void
+  }>
   userId: string
-}) {
+  onAddWeight: () => void
+}
+
+export function NavMain({ items, userId, onAddWeight }: NavMainProps) {
   const [showGetWeight, setShowGetWeight] = useState(false)
+
+  const handleWeightAdded = () => {
+    setShowGetWeight(false)
+    onAddWeight()
+  }
 
   return (
     <>
@@ -33,7 +39,10 @@ export function NavMain({
               <SidebarMenuButton
                 tooltip="Quick Create"
                 className="min-w-8 bg-primary text-primary-foreground duration-200 ease-linear hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground"
-                onClick={() => setShowGetWeight(true)}
+                onClick={() => {
+                  setShowGetWeight(true)
+                  onAddWeight()
+                }}
               >
                 <PlusCircleIcon />
                 <span>Add Eazy Weight</span>
@@ -57,6 +66,7 @@ export function NavMain({
         open={showGetWeight} 
         onOpenChange={setShowGetWeight}
         userId={userId}
+        onWeightAdded={handleWeightAdded}
       />
     </>
   )

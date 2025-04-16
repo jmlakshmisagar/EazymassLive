@@ -15,7 +15,7 @@ import {
   InputOTPSeparator,
   InputOTPSlot,
 } from "@/components/ui/input-otp"
-import { userService } from "../services/user.service"
+import { userService } from "../services"
 import { toast } from "sonner"
 import { GetWeightProps } from '../services/interfaces'
 
@@ -30,32 +30,46 @@ export function GetWeight({
   const [weight, setWeight] = useState<string>("")
   const [isLoading, setIsLoading] = useState(false)
 
+  const validateWeight = (value: string): boolean => {
+    if (!value || value.length !== 4) return false;
+    const weightValue = parseFloat(`${value.slice(0, 2)}.${value.slice(2)}`);
+    return !isNaN(weightValue) && weightValue > 0 && weightValue < 300;
+  };
+
+  const handleDateSelect = (selectedDate: Date | undefined) => {
+    if (selectedDate) {
+      setDate(selectedDate);
+    }
+  };
+
   const handleSave = async () => {
-    if (!date || !weight || weight.length < 4) {
-      toast.error("Please enter a valid weight")
-      return
+    if (!date || !validateWeight(weight)) {
+      toast.error("Please enter a valid weight between 0 and 300 kg");
+      return;
     }
 
     try {
-      setIsLoading(true)
+      setIsLoading(true);
+      const weightValue = parseFloat(`${weight.slice(0, 2)}.${weight.slice(2)}`);
+      
       await userService.addWeightEntry({
         date: date.toISOString(),
-        weight: parseFloat(`${weight.slice(0, 2)}.${weight.slice(2)}`),
+        weight: weightValue,
         userId,
         createdAt: new Date().toISOString()
-      }, userHeight)
+      }, userHeight);
       
-      toast.success("Weight recorded successfully")
-      onWeightAdded()
-      onOpenChange(false)
-      setWeight("")
+      toast.success("Weight recorded successfully");
+      onWeightAdded();
+      onOpenChange(false);
+      setWeight("");
     } catch (error) {
-      console.error('Error saving weight:', error)
-      toast.error("Failed to save weight")
+      console.error('Error saving weight:', error);
+      toast.error("Failed to save weight");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
@@ -85,7 +99,7 @@ export function GetWeight({
                   <Calendar
                     mode="single"
                     selected={date}
-                    onSelect={setDate}
+                    onSelect={handleDateSelect}
                     initialFocus
                   />
                 </PopoverContent>

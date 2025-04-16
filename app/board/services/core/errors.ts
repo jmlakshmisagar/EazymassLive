@@ -1,12 +1,11 @@
-import { ServiceErrorParams } from '../interfaces';
 
 export class ServiceError extends Error {
-  public code: string;
-
-  constructor({ message, code }: ServiceErrorParams) {
+  code: string;
+  
+  constructor({ message, code }: { message: string; code: string }) {
     super(message);
-    this.name = 'ServiceError';
     this.code = code;
+    this.name = 'ServiceError';
   }
 
   static create(message: string, code: string): ServiceError {

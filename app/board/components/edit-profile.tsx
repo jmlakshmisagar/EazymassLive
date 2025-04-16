@@ -22,7 +22,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { cn } from "@/lib/utils";
 import { format } from 'date-fns';
 import { CalendarIcon } from "lucide-react";
-import { userService } from '../services/user.service';
+import { userService } from '../services';  // Updated import
 import { toast } from 'sonner';
 import { EditProfileProps, EditProfileFormData } from '../services/interfaces';
 
@@ -61,17 +61,25 @@ export default function EditProfile({
                         avatar: profile.avatar || ''
                     });
                     setProfileImage(profile.avatar || '/default-avatar.png');
+                } else {
+                    toast.error('Profile not found');
+                    onClose();
                 }
             } catch (error) {
                 console.error('Error fetching profile:', error);
-                toast.error('Failed to load profile');
+                if (error instanceof ServiceError) {
+                    toast.error(error.message);
+                } else {
+                    toast.error('Failed to load profile');
+                }
+                onClose();
             }
         };
 
         if (isOpen && userId) {
             fetchProfile();
         }
-    }, [isOpen, userId]);
+    }, [isOpen, userId, onClose]);
 
     const calculateAge = (birthDate: Date) => {
         const today = new Date();
@@ -87,16 +95,20 @@ export default function EditProfile({
     const validateForm = (): boolean => {
         const newErrors: Record<string, string> = {};
 
-        if (!formData.name.trim()) {
-            newErrors.name = 'Name is required';
+        if (!formData.name.trim() || formData.name.length < 2) {
+            newErrors.name = 'Name must be at least 2 characters';
         }
 
-        if (formData.height <= 0) {
-            newErrors.height = 'Please enter a valid height';
+        if (formData.height <= 0 || formData.height > 300) {
+            newErrors.height = 'Height must be between 1 and 300 cm';
         }
 
         if (!formData.gender) {
             newErrors.gender = 'Please select a gender';
+        }
+
+        if (calculateAge(formData.dateOfBirth) < 13) {
+            newErrors.dateOfBirth = 'User must be at least 13 years old';
         }
 
         setErrors(newErrors);

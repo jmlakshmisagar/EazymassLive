@@ -23,7 +23,7 @@ export default function GetInDialog({ isOpen, onClose, onConfirm }: GetInDialogP
         <DialogHeader>
           <DialogTitle>New User</DialogTitle>
           <DialogDescription>
-            We noticed this is your first time logging in. Would you like to complete your profile now?
+            Eazy noticed this is your first time logging in. Would you like to complete your profile now?
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>

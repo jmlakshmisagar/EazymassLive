@@ -1,5 +1,6 @@
 "use client"
 
+import { UserData } from '../services/interfaces'
 import { useSidebar } from "@/components/ui/sidebar"
 import {
   Avatar,
@@ -26,14 +27,6 @@ import {
   MoreVerticalIcon,
   UserCircleIcon,
 } from "lucide-react"
-
-interface UserData {
-  displayName: string
-  email: string
-  avatar: string
-  age?: number
-  height?: number
-}
 
 interface NavUserProps {
   user: UserData;

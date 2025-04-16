@@ -1,6 +1,7 @@
 "use client"
 
-import { AppSidebarProps, UserData, } from '../services/interfaces'
+import { AppSidebarProps, UserData } from '../services/interfaces'
+import { BarChartIcon, PlusCircleIcon, UserIcon } from 'lucide-react'
 import {
   Sidebar,
   SidebarContent,
@@ -10,9 +11,29 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
-import { defaultData } from '../config/sidebar-data'
 import { NavUser } from './nav-user'
 import { NavMain } from './nav-main'
+
+const defaultData = {
+  navMain: [
+    {
+      title: 'Dashboard',
+      url: '/board',
+      icon: BarChartIcon
+    },
+    {
+      title: 'Profile',
+      url: '/profile',
+      icon: UserIcon
+    },
+    {
+      title: 'Add Weight',
+      url: '#',
+      icon: PlusCircleIcon,
+      onClick: (onAddWeight: () => void) => onAddWeight()
+    }
+  ]
+}
 
 export function AppSidebar({ 
   userId, 
@@ -24,7 +45,7 @@ export function AppSidebar({
 }: AppSidebarProps) {
   const defaultUserData: UserData = {
     displayName: 'Guest User',
-    email: '',
+    email: 'guest@example.com',
     avatar: '/avatars/default.png',
     lastLogin: new Date().toISOString(),
     createdAt: new Date().toISOString(),
