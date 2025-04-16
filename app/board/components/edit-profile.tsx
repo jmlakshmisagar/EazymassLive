@@ -22,7 +22,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { cn } from "@/lib/utils";
 import { format } from 'date-fns';
 import { CalendarIcon } from "lucide-react";
-import { userService } from '../services';  // Updated import
+import { userService } from '../services';
+import { ServiceError } from '../services/core/errors';
 import { toast } from 'sonner';
 import { EditProfileProps, EditProfileFormData } from '../services/interfaces';
 
@@ -65,9 +66,11 @@ export default function EditProfile({
                     toast.error('Profile not found');
                     onClose();
                 }
-            } catch (error) {
+            } catch (error: unknown) {
                 console.error('Error fetching profile:', error);
                 if (error instanceof ServiceError) {
+                    toast.error(error.message);
+                } else if (error instanceof Error) {
                     toast.error(error.message);
                 } else {
                     toast.error('Failed to load profile');
@@ -124,7 +127,7 @@ export default function EditProfile({
             setIsLoading(true);
             await userService.updateProfile(userId, {
                 displayName: formData.name,
-                photoURL: formData.avatar,
+                avatar: formData.avatar,
                 dateOfBirth: format(formData.dateOfBirth, 'yyyy-MM-dd'),
                 gender: formData.gender as 'male' | 'female' | 'other',
                 height: formData.height,
@@ -134,9 +137,15 @@ export default function EditProfile({
             toast.success('Profile updated successfully');
             onProfileUpdated();
             onClose();
-        } catch (error) {
-            console.error('Error updating profile:', error);
-            toast.error('Failed to update profile');
+        } catch (err) {
+            console.error('Error updating profile:', err);
+            if (err instanceof ServiceError) {
+                toast.error(err.message);
+            } else if (err instanceof Error) {
+                toast.error(err.message);
+            } else {
+                toast.error('Failed to update profile');
+            }
         } finally {
             setIsLoading(false);
         }
@@ -153,9 +162,13 @@ export default function EditProfile({
                     setFormData(prev => ({ ...prev, avatar: base64String }));
                 };
                 reader.readAsDataURL(file);
-            } catch (error) {
+            } catch (error: unknown) {
                 console.error('Error uploading image:', error);
-                toast.error('Failed to upload image');
+                if (error instanceof Error) {
+                    toast.error(error.message);
+                } else {
+                    toast.error('Failed to upload image');
+                }
             }
         }
     };

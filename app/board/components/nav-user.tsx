@@ -49,8 +49,13 @@ export function NavUser({ user, onEditProfile, onLogout }: NavUserProps) {
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <Avatar className="h-8 w-8 rounded-lg">
-                <AvatarImage src={user.avatar} alt={user.displayName} />
-                <AvatarFallback>{user.displayName.slice(0, 2).toUpperCase()}</AvatarFallback>
+                <AvatarImage 
+                  src={user.avatar || '/avatars/default.png'} 
+                  alt={user.displayName} 
+                />
+                <AvatarFallback>
+                  {user.displayName?.slice(0, 2).toUpperCase() || 'U'}
+                </AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">{user.displayName}</span>

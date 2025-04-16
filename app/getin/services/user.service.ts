@@ -1,56 +1,77 @@
 import { ref, set, get } from 'firebase/database';
-import { database } from '@/lib/firebase';
-import { UserDocument } from '../types/auth.types';
+import { rtdb } from '@/lib/firebase';
+import { UserDocument } from '../types/index';
 import { showToast } from '../../../components/toasts';
+
+export class UserServiceError extends Error {
+    constructor(message: string, public code: string) {
+        super(message);
+        this.name = 'UserServiceError';
+    }
+}
 
 // Add network state check
 const isOnline = () => navigator.onLine;
 
-export const createUserDocument = async (user: any, additionalData: Partial<UserDocument> = {}) => {
-    if (!user) throw new Error('No user data provided');
+export const createUserDocument = async (
+    user: { uid: string; email: string | null }, 
+    additionalData: Partial<UserDocument>
+): Promise<UserDocument> => {
+    if (!user) throw new UserServiceError('No user data provided', 'NO_USER_DATA');
     
     try {
-        const userRef = ref(database, `users/${user.uid}`);
+        const userRef = ref(rtdb, `users/${user.uid}`);
         
-        // Create user data with required gender field
-        const userData = {
+        // Only include essential fields
+        const userData: UserDocument = {
             id: user.uid,
             email: user.email ?? '',
-            displayName: additionalData.displayName || null,
-            photoURL: additionalData.photoURL || null,
+            displayName: additionalData.displayName || '',
+            dateOfBirth: additionalData.dateOfBirth || '',
+            gender: additionalData.gender || 'prefer-not-to-say',
+            height: additionalData.height || 0,
             createdAt: new Date().toISOString(),
             lastLogin: new Date().toISOString(),
-            dateOfBirth: additionalData.dateOfBirth || null,
-            gender: additionalData.gender, // Remove default value to ensure it's passed
-            isNewUser: true
+            isNewUser: true,
+            weights: []
         };
 
-        // Log the data being saved
-        console.log('Saving user data:', userData);
+        // Validate required fields
+        if (!userData.displayName) {
+            throw new UserServiceError('Display name is required', 'INVALID_DISPLAY_NAME');
+        }
+        if (!userData.dateOfBirth) {
+            throw new UserServiceError('Date of birth is required', 'INVALID_DOB');
+        }
+        if (!userData.gender) {
+            throw new UserServiceError('Gender is required', 'INVALID_GENDER');
+        }
+        if (!userData.height || userData.height <= 0) {
+            throw new UserServiceError('Valid height is required', 'INVALID_HEIGHT');
+        }
 
-        // Save the complete user document
         await set(userRef, userData);
-        
         return userData;
     } catch (error) {
-        console.error('Error saving user data:', error);
-        showToast('Error', 'error', 'Failed to save user data');
-        throw error;
+        throw new UserServiceError(
+            error instanceof UserServiceError ? error.message : 'Failed to create user document', 
+            'CREATE_USER_FAILED'
+        );
     }
 };
 
 export const checkUserExists = async (uid: string): Promise<boolean> => {
     if (!uid) {
-        throw new Error('No user ID provided');
+        throw new UserServiceError('No user ID provided', 'NO_USER_ID');
     }
 
     if (!isOnline()) {
         showToast('Error', 'error', 'No internet connection. Please check your network.');
-        throw new Error('No internet connection');
+        throw new UserServiceError('No internet connection', 'NO_INTERNET');
     }
 
     try {
-        const userRef = ref(database, `users/${uid}`);
+        const userRef = ref(rtdb, `users/${uid}`);
         const userSnapshot = await get(userRef);
         return userSnapshot.exists();
     } catch (error: any) {
@@ -59,13 +80,13 @@ export const checkUserExists = async (uid: string): Promise<boolean> => {
             ? 'No internet connection. Please check your network.'
             : 'Failed to check user existence';
         showToast('Error', 'error', errorMessage);
-        throw error;
+        throw new UserServiceError(errorMessage, 'CHECK_USER_FAILED');
     }
 };
 
 export const getUserData = async (uid: string): Promise<UserDocument | null> => {
     try {
-        const userRef = ref(database, `users/${uid}`);
+        const userRef = ref(rtdb, `users/${uid}`);
         const snapshot = await get(userRef);
         
         if (snapshot.exists()) {
@@ -75,6 +96,6 @@ export const getUserData = async (uid: string): Promise<UserDocument | null> => 
         return null;
     } catch (error) {
         console.error('Error fetching user data:', error);
-        throw error;
+        throw new UserServiceError('Failed to fetch user data', 'FETCH_USER_FAILED');
     }
 };

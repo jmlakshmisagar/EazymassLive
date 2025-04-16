@@ -3,6 +3,7 @@ import "./globals.css";
 import { Kanit, Plus_Jakarta_Sans, Outfit } from 'next/font/google'
 import { ThemeProvider } from "next-themes"
 import { ToastProvider } from "@/components/toasts"
+import { enablePersistence } from '@/lib/firebase-persistence';
 
 const kanit = Kanit({
   subsets: ['latin'],
@@ -30,6 +31,11 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
+  // Enable persistence on client side only
+  if (typeof window !== 'undefined') {
+    enablePersistence();
+  }
+
   return (
     <html lang="en" suppressHydrationWarning className={`${kanit.variable} ${plusJakartaSans.variable} ${outfit.variable}`}>
       <body>
@@ -42,7 +48,6 @@ export default function RootLayout({
           {children}
           <ToastProvider />
         </ThemeProvider>
-        {/* <Toaster /> */}
       </body>
     </html>
   )

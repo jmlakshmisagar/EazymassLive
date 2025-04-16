@@ -1,11 +1,8 @@
 import { useState } from 'react';
-import { createUserDocument } from '../services/user.service';
+import { createUserDocument, UserServiceError } from '../services/user.service';
 import { showToast } from '../../../components/toasts';
-import { RegistrationData, UserCredentials } from '../types/auth.types';
-import { encodeUserId } from '@/app/utils/id-encoder';
-
-// Add type for gender
-type Gender = 'male' | 'female' | 'other' | 'prefer-not-to-say';
+import { RegistrationData, UserDocument, Gender } from '../types/index';
+import { UserCredentials } from '../types/auth.types';
 
 export const useRegistration = () => {
     const [isLoading, setIsLoading] = useState(false);
@@ -14,20 +11,29 @@ export const useRegistration = () => {
     const [pendingCredentials, setPendingCredentials] = useState<UserCredentials | null>(null);
     const [registeredUserId, setRegisteredUserId] = useState<string | null>(null);
 
-    const validateRegistrationData = (data: RegistrationData) => {
+    const validateRegistrationData = (data: RegistrationData): void => {
+        const errors: string[] = [];
+
         if (!data.name?.trim()) {
-            throw new Error('Name is required');
+            errors.push('Name is required');
         }
         if (!data.dateOfBirth) {
-            throw new Error('Date of birth is required');
+            errors.push('Date of birth is required');
         }
         if (!data.gender || !['male', 'female', 'other', 'prefer-not-to-say'].includes(data.gender)) {
-            throw new Error('Valid gender selection is required');
+            errors.push('Valid gender selection is required');
+        }
+        if (data.height !== undefined && (data.height <= 0 || data.height > 300)) {
+            errors.push('Height must be between 1 and 300 cm');
         }
 
         const dob = new Date(data.dateOfBirth);
         if (isNaN(dob.getTime()) || dob > new Date()) {
-            throw new Error('Invalid date of birth');
+            errors.push('Invalid date of birth');
+        }
+
+        if (errors.length > 0) {
+            throw new Error(errors.join(', '));
         }
     };
 
@@ -50,12 +56,11 @@ export const useRegistration = () => {
                 throw new Error("No user credentials found");
             }
 
-            // Save user document
             await createUserDocument(pendingCredentials.user, {
                 displayName: data.name.trim(),
                 dateOfBirth: data.dateOfBirth,
-                photoURL: data.photoURL,
                 gender: data.gender,
+                height: data.height,
                 isNewUser: true
             });
 

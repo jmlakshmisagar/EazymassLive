@@ -1,5 +1,13 @@
 import { Sidebar } from "@/components/ui/sidebar"
 
+export interface WeightData {
+  id?: string;
+  date: string;
+  weight: number;
+  userId: string;
+  createdAt: string;
+}
+
 export interface UserData {
   displayName: string;
   email: string;
@@ -75,4 +83,20 @@ export interface GetWeightProps {
   userId: string;
   onWeightAdded: () => void;
   userHeight?: number;
+}
+
+export interface SectionCardsProps {
+  weightData: WeightEntry[];
+  isLoading: boolean;
+  onAddWeight: () => void;
+}
+
+export interface ChartAreaInteractiveProps {
+  data: WeightEntry[];
+  isLoading: boolean;
+}
+
+export interface DataTableProps {
+  data: WeightEntry[];
+  isLoading: boolean;
 }

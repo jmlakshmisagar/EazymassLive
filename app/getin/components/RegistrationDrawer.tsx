@@ -30,11 +30,19 @@ export function RegistrationDrawer({ isOpen, onClose, onSubmit }: RegistrationDr
         photo,
         gender,
         setGender,
+        height,
+        setHeight,
         isUploading,
         isSubmitting,
         handlePhotoUpload,
         handleSubmit
     } = useRegistrationForm(onSubmit);
+
+    const handleDateSelect = (date: Date | undefined) => {
+        if (date) {
+            setDob(date);
+        }
+    };
 
     return (
         <Drawer open={isOpen} onOpenChange={onClose}>
@@ -45,67 +53,87 @@ export function RegistrationDrawer({ isOpen, onClose, onSubmit }: RegistrationDr
                 <form onSubmit={handleSubmit} className="w-full max-w-md p-6 space-y-6">
                     <AvatarUpload photoURL={photo || null} name={name} />
 
-                    {/* Form fields */}
                     <div className="space-y-6">
-                        {/* Name Input */}
-                        <div className="space-y-2">
-                            <Label htmlFor="name">Full Name *</Label>
-                            <Input
-                                id="name"
-                                value={name}
-                                onChange={(e) => setName(e.target.value)}
-                                placeholder="Enter your full name"
-                                required
-                                disabled={isSubmitting}
-                            /> 
+                        {/* Basic Information */}
+                        <div className="space-y-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="name">Full Name *</Label>
+                                <Input
+                                    id="name"
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
+                                    placeholder="Enter your full name"
+                                    required
+                                    disabled={isSubmitting}
+                                /> 
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label>Date of Birth *</Label>
+                                <Popover>
+                                    <PopoverTrigger asChild>
+                                        <Button
+                                            variant="outline"
+                                            className={cn(
+                                                "w-full justify-start text-left font-normal",
+                                                !dob && "text-muted-foreground"
+                                            )}
+                                            disabled={isSubmitting}
+                                        >
+                                            <CalendarIcon className="mr-2 h-4 w-4" />
+                                            {dob ? formatDate(dob) : "Select your date of birth"}
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto p-0" align="start">
+                                        <Calendar
+                                            mode="single"
+                                            selected={dob}
+                                            onSelect={handleDateSelect}
+                                            disabled={(date) =>
+                                                date > new Date() || date < new Date("1900-01-01")
+                                            }
+                                            initialFocus
+                                        />
+                                    </PopoverContent>
+                                </Popover>
+                            </div>
                         </div>
 
-                        {/* Gender Selection */}
-                        <div className="space-y-2">
-                            <Label htmlFor="gender">Gender *</Label>
-                            <Select 
-                                value={gender}
-                                onValueChange={(value: Gender) => setGender(value)}
-                                required
-                            >
-                                <SelectTrigger id="gender" disabled={isSubmitting}>
-                                    <SelectValue placeholder="Select your gender" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="male">Male</SelectItem>
-                                    <SelectItem value="female">Female</SelectItem>
-                                    <SelectItem value="other">Other</SelectItem>
-                                    <SelectItem value="prefer-not-to-say">Prefer not to say</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
+                        {/* Physical Information */}
+                        <div className="space-y-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="gender">Gender *</Label>
+                                <Select 
+                                    value={gender}
+                                    onValueChange={(value: Gender) => setGender(value)}
+                                    required
+                                >
+                                    <SelectTrigger id="gender" disabled={isSubmitting}>
+                                        <SelectValue placeholder="Select your gender" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="male">Male</SelectItem>
+                                        <SelectItem value="female">Female</SelectItem>
+                                        <SelectItem value="other">Other</SelectItem>
+                                        <SelectItem value="prefer-not-to-say">Prefer not to say</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
 
-                        {/* Date of Birth */}
-                        <div className="space-y-2">
-                            <Label>Date of Birth *</Label>
-                            <Popover>
-                                <PopoverTrigger asChild>
-                                    <Button
-                                        variant="outline"
-                                        className="w-full justify-start text-left font-normal"
-                                        disabled={isSubmitting}
-                                    >
-                                        <CalendarIcon className="mr-2 h-4 w-4" />
-                                        {formatDate(dob)}
-                                    </Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-auto p-0" align="start">
-                                    <Calendar
-                                        mode="single"
-                                        selected={dob}
-                                        onSelect={setDob}
-                                        disabled={(date) =>
-                                            date > new Date() || date < new Date("1900-01-01")
-                                        }
-                                        initialFocus
-                                    />
-                                </PopoverContent>
-                            </Popover>
+                            <div className="space-y-2">
+                                <Label htmlFor="height">Height (cm) *</Label>
+                                <Input
+                                    id="height"
+                                    type="number"
+                                    value={height || ''}
+                                    onChange={(e) => setHeight(Number(e.target.value))}
+                                    placeholder="Enter your height in centimeters"
+                                    min="1"
+                                    max="300"
+                                    required
+                                    disabled={isSubmitting}
+                                />
+                            </div>
                         </div>
 
                         {/* Photo Upload */}
@@ -130,7 +158,6 @@ export function RegistrationDrawer({ isOpen, onClose, onSubmit }: RegistrationDr
                         </div>
                     </div>
 
-                    {/* Action Buttons */}
                     <div className="flex gap-4 pt-6">
                         <Button
                             type="button"

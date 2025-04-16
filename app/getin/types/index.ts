@@ -1,12 +1,38 @@
 import { FormEvent } from 'react';
 
-export interface LoginFormData {
-  email: string;
-  password: string;
+export type Gender = 'male' | 'female' | 'other' | 'prefer-not-to-say';
+
+export interface WeightEntry {
+    id: string;
+    date: string;
+    weight: number;
+    bmi?: number;
+    createdAt: string;
+}
+
+export interface UserDocument {
+    id: string;
+    email: string;
+    displayName: string;
+    dateOfBirth: string;
+    gender: Gender;
+    height: number;
+    createdAt: string;
+    lastLogin: string;
+    isNewUser: boolean;
+    weights?: WeightEntry[];
 }
 
 export interface RegistrationData {
-  // Define the structure of RegistrationData here
+    name: string;
+    dateOfBirth: string;
+    gender: Gender;
+    height: number;
+}
+
+export interface LoginFormData {
+  email: string;
+  password: string;
 }
 
 export interface LoginPageLayoutProps {

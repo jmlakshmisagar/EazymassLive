@@ -1,76 +1,53 @@
-import { ref, get, set, update } from "firebase/database";
-import { rtdb } from "@/lib/firebase";
-import { UserData, UserUpdate } from '../interfaces';
+import { ref, get, set, update } from 'firebase/database';
+import { auth, rtdb } from '@/lib/firebase';
+import { UserData, WeightData } from '../interfaces';
 import { ServiceError } from '../core/errors';
-
-interface WeightEntryInput {
-  userId: string;
-  weight: number;
-  date: string;
-  createdAt: string;
-}
 
 export const userService = {
   async getUserProfile(userId: string): Promise<UserData | null> {
     try {
       const userRef = ref(rtdb, `users/${userId}`);
       const snapshot = await get(userRef);
-      
-      if (!snapshot.exists()) {
-        return null;
-      }
-
-      return snapshot.val() as UserData;
+      return snapshot.exists() ? snapshot.val() as UserData : null;
     } catch (error) {
-      throw ServiceError.create(
-        'Failed to fetch user profile',
-        'USER_FETCH_FAILED'
-      );
+      throw ServiceError.create('Failed to fetch user profile', 'USER_FETCH_FAILED');
     }
   },
 
-  async updateProfile(userId: string, data: UserUpdate): Promise<UserData> {
+  async updateProfile(userId: string, data: Partial<UserData>): Promise<void> {
     try {
       const userRef = ref(rtdb, `users/${userId}`);
-      const updates = {
+      await update(userRef, {
         ...data,
         updatedAt: new Date().toISOString()
-      };
-      
-      await update(userRef, updates);
-      
-      const updatedProfile = await this.getUserProfile(userId);
-      if (!updatedProfile) {
-        throw new Error('Failed to fetch updated profile');
-      }
-      
-      return updatedProfile;
+      });
     } catch (error) {
-      throw ServiceError.create(
-        'Failed to update profile',
-        'PROFILE_UPDATE_FAILED'
-      );
+      throw ServiceError.create('Failed to update profile', 'PROFILE_UPDATE_FAILED');
     }
   },
 
-  async addWeightEntry(entry: WeightEntryInput, userHeight?: number): Promise<void> {
+  async addWeightEntry(userId: string, weightData: Omit<WeightData, 'id'>): Promise<void> {
     try {
-      const userRef = ref(rtdb, `users/${entry.userId}/weights`);
-      const snapshot = await get(userRef);
+      const weightRef = ref(rtdb, `users/${userId}/weights`);
+      const snapshot = await get(weightRef);
       const currentWeights = snapshot.val() || [];
       
-      const newEntry = {
-        ...entry,
-        bmi: userHeight ? (entry.weight / ((userHeight/100) ** 2)) : undefined,
+      const newWeight = {
+        ...weightData,
         id: Date.now().toString()
       };
-      
-      await set(userRef, [...currentWeights, newEntry]);
+
+      await set(weightRef, [...currentWeights, newWeight]);
     } catch (error) {
-      throw ServiceError.create(
-        'Failed to add weight entry',
-        'WEIGHT_ADD_FAILED'
-      );
+      throw ServiceError.create('Failed to add weight entry', 'WEIGHT_ADD_FAILED');
+    }
+  },
+
+  async logout(): Promise<void> {
+    try {
+      console.log("object");
+    } catch (error) {
+      throw ServiceError.create('Failed to logout', 'LOGOUT_FAILED');
     }
   }
 };

@@ -52,12 +52,12 @@ export function GetWeight({
       setIsLoading(true);
       const weightValue = parseFloat(`${weight.slice(0, 2)}.${weight.slice(2)}`);
       
-      await userService.addWeightEntry({
+      await userService.addWeightEntry(userId, {
         date: date.toISOString(),
         weight: weightValue,
         userId,
         createdAt: new Date().toISOString()
-      }, userHeight);
+      });
       
       toast.success("Weight recorded successfully");
       onWeightAdded();

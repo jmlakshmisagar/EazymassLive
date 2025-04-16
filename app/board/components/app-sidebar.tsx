@@ -22,11 +22,6 @@ const defaultData = {
       icon: BarChartIcon
     },
     {
-      title: 'Profile',
-      url: '/profile',
-      icon: UserIcon
-    },
-    {
       title: 'Add Weight',
       url: '#',
       icon: PlusCircleIcon,

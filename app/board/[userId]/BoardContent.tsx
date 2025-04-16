@@ -9,6 +9,7 @@ import { SiteHeader } from "../components/site-header"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { userService } from "../services"
 import { UserData, WeightEntry } from '../services/interfaces'
+import { ServiceError } from '../services/core/errors'
 import { CacheService } from "../services/cache/cache.service"
 import { GetWeight } from "../components/get-weight"
 import EditProfile from "../components/edit-profile"
@@ -46,6 +47,8 @@ export default function BoardContent({ userId }: { userId: string }) {
       console.error('Error fetching user data:', error);
       if (error instanceof ServiceError) {
         toast.error(error.message);
+      } else if (error instanceof Error) {
+        toast.error(error.message);
       } else {
         toast.error('Failed to load dashboard data');
       }
@@ -76,7 +79,11 @@ export default function BoardContent({ userId }: { userId: string }) {
       await CacheService.clearCache(userId);
       window.location.href = '/login';
     } catch (error) {
-      toast.error('Failed to logout');
+      if (error instanceof ServiceError) {
+        toast.error(error.message);
+      } else {
+        toast.error('Failed to logout');
+      }
     }
   };
 
@@ -94,18 +101,18 @@ export default function BoardContent({ userId }: { userId: string }) {
         <div className="flex flex-1 flex-col">
           <div className="@container/main flex flex-1 flex-col gap-2">
             <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-              <SectionCards 
-                // weightData={weightData} 
-                // isLoading={isLoading}
-                // onAddWeight={() => setShowWeightForm(true)}
+              {/* <SectionCards 
+                weightData={weightData} 
+                isLoading={isLoading}
+                onAddWeight={() => setShowWeightForm(true)}
               />
               <div className="px-4 lg:px-6">
-                {/* <ChartAreaInteractive 
+                <ChartAreaInteractive 
                   data={weightData} 
                   isLoading={isLoading} 
-                /> */}
+                />
               </div>
-              {/* <DataTable 
+              <DataTable 
                 data={weightData} 
                 isLoading={isLoading}
               /> */}

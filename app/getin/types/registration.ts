@@ -8,7 +8,9 @@ export interface UserDocument {
     createdAt: string;
     lastLogin: string;
     dateOfBirth: string | null;
-    gender: Gender;  // Add this line
+    gender: Gender;
+    height?: number; // Add height field
+    isNewUser: boolean;
 }
 
 export interface RegistrationData {
@@ -16,6 +18,7 @@ export interface RegistrationData {
     dateOfBirth: string;
     photoURL?: string | null;
     gender: Gender;
+    height?: number;
 }
 
 export interface RegistrationDrawerProps {

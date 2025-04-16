@@ -1,30 +1,29 @@
-import { useState } from "react";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { showToast } from "@/components/toasts";
-import type { RegistrationData, Gender } from "../types/registration";
+import { useState } from 'react';
+import { format } from 'date-fns';
+import { toast } from 'sonner';
+import { Gender, RegistrationData } from '../types/registration';
 
-export const useRegistrationForm = (onSubmit: (data: RegistrationData) => Promise<void>) => {
-    const [name, setName] = useState("");
-    const [dob, setDob] = useState<Date>();
+export function useRegistrationForm(onSubmit: (data: RegistrationData) => Promise<void>) {
+    const [name, setName] = useState('');
+    const [dob, setDob] = useState<Date>(new Date());
     const [photo, setPhoto] = useState<string | null>(null);
-    const [gender, setGender] = useState<Gender>("prefer-not-to-say");
+    const [gender, setGender] = useState<Gender>('prefer-not-to-say');
+    const [height, setHeight] = useState<number>(0);
     const [isUploading, setIsUploading] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handlePhotoUpload = async (file: File) => {
         try {
             setIsUploading(true);
-            const storage = getStorage();
-            const fileRef = ref(storage, `profile-photos/${file.name}`);
-            
-            await uploadBytes(fileRef, file);
-            const photoURL = await getDownloadURL(fileRef);
-            
-            setPhoto(photoURL);
-            showToast("Photo uploaded", "success");
+            const base64 = await new Promise<string>((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result as string);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+            setPhoto(base64);
         } catch (error) {
-            console.error('Error uploading photo:', error);
-            showToast("Upload failed", "error", "Failed to upload photo");
+            toast.error('Failed to upload photo');
         } finally {
             setIsUploading(false);
         }
@@ -32,19 +31,19 @@ export const useRegistrationForm = (onSubmit: (data: RegistrationData) => Promis
 
     const validateForm = (): boolean => {
         if (!name.trim()) {
-            showToast("Missing name", "error", "Please enter your full name");
+            toast.error('Name is required');
             return false;
         }
         if (!dob) {
-            showToast("Missing date", "error", "Please select your date of birth");
+            toast.error('Date of birth is required');
             return false;
         }
         if (!gender) {
-            showToast("Missing gender", "error", "Please select your gender");
+            toast.error('Gender is required');
             return false;
         }
-        if (dob > new Date()) {
-            showToast("Invalid date", "error", "Date of birth cannot be in the future");
+        if (!height || height < 1 || height > 300) {
+            toast.error('Height must be between 1 and 300 cm');
             return false;
         }
         return true;
@@ -52,22 +51,21 @@ export const useRegistrationForm = (onSubmit: (data: RegistrationData) => Promis
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        
         if (!validateForm()) return;
 
-        setIsSubmitting(true);
         try {
-            const registrationData: RegistrationData = {
+            setIsSubmitting(true);
+            await onSubmit({
                 name: name.trim(),
-                dateOfBirth: dob!.toISOString(),
-                photoURL: photo || null,
-                gender // This will be typed as Gender
-            };
-
-            console.log('Submitting registration data:', registrationData);
-            await onSubmit(registrationData);
+                dateOfBirth: format(dob, 'yyyy-MM-dd'),
+                photoURL: photo,
+                gender,
+                height
+            });
         } catch (error) {
-            console.error('Form submission error:', error);
-            showToast('Error', 'error', 'Failed to complete registration');
+            console.error('Registration error:', error);
+            toast.error('Failed to complete registration');
         } finally {
             setIsSubmitting(false);
         }
@@ -81,9 +79,11 @@ export const useRegistrationForm = (onSubmit: (data: RegistrationData) => Promis
         photo,
         gender,
         setGender,
+        height,
+        setHeight,
         isUploading,
         isSubmitting,
         handlePhotoUpload,
         handleSubmit
     };
-};
+}
