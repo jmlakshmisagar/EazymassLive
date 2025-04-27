@@ -36,59 +36,156 @@ document.addEventListener("DOMContentLoaded", async function () {
           (a, b) => new Date(a.weigh_date) - new Date(b.weigh_date)
         );
 
-        const generateChartData = (filteredSubmissions) => {
-          return {
-            labels: filteredSubmissions.map((submission) => {
-              const date = new Date(submission.weigh_date);
-              const day = String(date.getDate()).padStart(2, "0");
-              const month = String(date.getMonth() + 1).padStart(2, "0");
-              return `${day}-${month}`;
-            }),
-            datasets: [
-              {
-                label: "Weight",
-                data: filteredSubmissions.map((submission) =>
-                  parseFloat(submission.weight)
-                ),
-                borderColor: "rgb(255, 217, 0)",
-                borderWidth: 2,
-                fill: false,
-              },
-            ],
-          };
+        const generateChartData = (filteredSubmissions, chartType) => {
+          const dates = filteredSubmissions.map((submission) => {
+            const date = new Date(submission.weigh_date);
+            const day = String(date.getDate()).padStart(2, "0");
+            const month = String(date.getMonth() + 1).padStart(2, "0");
+            return `${day}-${month}`;
+          });
+          
+          const weights = filteredSubmissions.map((submission) => 
+            parseFloat(submission.weight)
+          );
+
+          switch(chartType) {
+            case 'line':
+              return {
+                labels: dates,
+                datasets: [{
+                  label: 'Weight Progression',
+                  data: weights,
+                  borderColor: 'rgb(255, 217, 0)',
+                  borderWidth: 2,
+                  fill: false
+                }]
+              };
+            
+            case 'bar':
+              return {
+                labels: dates,
+                datasets: [{
+                  label: 'Weight Distribution',
+                  data: weights,
+                  backgroundColor: 'rgba(255, 217, 0, 0.6)',
+                  borderColor: 'rgb(255, 217, 0)',
+                  borderWidth: 1
+                }]
+              };
+            
+            case 'radar':
+              return {
+                labels: dates,
+                datasets: [{
+                  label: 'Weight Pattern',
+                  data: weights,
+                  backgroundColor: 'rgba(255, 217, 0, 0.2)',
+                  borderColor: 'rgb(255, 217, 0)',
+                  borderWidth: 2,
+                  pointBackgroundColor: 'rgb(255, 217, 0)'
+                }]
+              };
+            
+            case 'scatter':
+              return {
+                datasets: [{
+                  label: 'Weight Scatter',
+                  data: dates.map((date, index) => ({
+                    x: index,
+                    y: weights[index]
+                  })),
+                  backgroundColor: 'rgb(255, 217, 0)'
+                }]
+              };
+            
+            case 'polarArea':
+              return {
+                labels: dates,
+                datasets: [{
+                  data: weights,
+                  backgroundColor: weights.map((_, index) => 
+                    `hsla(51, 100%, 50%, ${0.3 + (index / weights.length) * 0.7})`
+                  )
+                }]
+              };
+            
+            case 'doughnut':
+              return {
+                labels: dates,
+                datasets: [{
+                  data: weights,
+                  backgroundColor: weights.map((_, index) => 
+                    `hsla(51, 100%, ${20 + (index / weights.length) * 50}%, 0.8)`
+                  )
+                }]
+              };
+          }
         };
 
-        const renderChart = (data) => {
+        const renderChart = (data, type) => {
           const chartCanvas = document.getElementById("weightChart");
-          new Chart(chartCanvas, {
-            type: "line",
-            data: data,
-            options: {
-              scales: {
+          
+          try {
+            // Destroy existing chart if it exists
+            if (window.weightChart instanceof Chart) {
+              window.weightChart.destroy();
+            }
+
+            const chartOptions = {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: {
+                  display: true,
+                  position: 'top',
+                  labels: {
+                    color: '#ffffff'
+                  }
+                }
+              },
+              scales: type === 'line' || type === 'bar' || type === 'scatter' ? {
                 x: {
-                  type: "category",
-                  position: "bottom",
+                  grid: {
+                    color: 'rgba(255, 255, 255, 0.1)'
+                  },
+                  ticks: {
+                    color: '#ffffff'
+                  }
                 },
                 y: {
-                  type: "linear",
-                  position: "left",
-                },
-              },
-            },
-          });
+                  grid: {
+                    color: 'rgba(255, 255, 255, 0.1)'
+                  },
+                  ticks: {
+                    color: '#ffffff'
+                  }
+                }
+              } : undefined
+            };
+
+            window.weightChart = new Chart(chartCanvas, {
+              type: type,
+              data: data,
+              options: chartOptions
+            });
+          } catch (error) {
+            console.error('Error rendering chart:', error);
+            showModal('Error rendering chart: ' + error.message);
+          }
         };
 
-        renderChart(generateChartData(submissionsArray));
+        // Replace the initial chart render code
+        if (document.getElementById("weightChart")) {
+          const initialChartType = document.getElementById("chart-type").value || 'line';
+          renderChart(generateChartData(submissionsArray, initialChartType), initialChartType);
+        }
 
-        document
-          .getElementById("custom-date")
-          .addEventListener("change", function () {
-            const selectedValue = parseInt(this.value, 10);
-            if (isNaN(selectedValue)) return;
-
-            const filteredSubmissions = submissionsArray.slice(-selectedValue);
-            renderChart(generateChartData(filteredSubmissions));
-          });
+        // Replace or add after the initial chart render
+        document.getElementById("chart-type").addEventListener("change", function() {
+          const selectedType = this.value;
+          const chartData = generateChartData(submissionsArray, selectedType);
+          renderChart(chartData, selectedType);
+        });
 
         if (submissionsArray.length > 0) {
           const latestSubmission = submissionsArray[0];
@@ -138,25 +235,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 
           const submissionCount = submissionsArray.length;
           document.getElementById("streaks").textContent = submissionCount;
-
-          const selectElement = document.getElementById("custom-date");
-          selectElement.innerHTML = "";
-
-          if (submissionCount < 15) {
-            for (let i = 1; i <= submissionCount; i++) {
-              const option = document.createElement("option");
-              option.value = i;
-              option.textContent = `${i} day${i > 1 ? "s" : ""}`;
-              selectElement.appendChild(option);
-            }
-          } else {
-            for (let i = 3; i <= submissionCount; i += 3) {
-              const option = document.createElement("option");
-              option.value = i;
-              option.textContent = `${i} days`;
-              selectElement.appendChild(option);
-            }
-          }
         } else {
           console.log("No submissions found.");
         }

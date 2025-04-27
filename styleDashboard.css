@@ -199,3 +199,25 @@ body {
   background-color: rgb(255, 217, 0);
   border-color: rgb(255, 217, 0);
 }
+
+.stats {
+  height: 100%;
+  position: relative;
+}
+
+#weightChart {
+  width: 100%;
+  height: 100%;
+}
+
+#chart-type {
+  width: 100%;
+  margin-bottom: 15px;
+}
+
+/* Chart container responsiveness */
+@media (max-width: 768px) {
+  .stats {
+    height: 300px;
+  }
+}
